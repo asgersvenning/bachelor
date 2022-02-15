@@ -1,0 +1,19 @@
+Package: asgerbachelor
+Title: Bachelor Data And Functions
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Asger", 
+           family = "Svenning",
+           email = "asgersvenning@gmail.com", 
+           role = c("aut", "cre"))
+Description: This is a project for storing data and scripts used in my bachelors project. The goal of the project is to utilize datasets such as FIA, USDA PLANTS and EPA ecoregions, to analyze the relationships between functional diversity and species richness.
+License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+    license
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.2
+Depends: 
+    R (>= 2.10)
+LazyData: true
+Imports: 
+    tibble
