@@ -8,9 +8,11 @@
 A tibble with 243 rows and 10 variables:
 \describe{
 \item{INVYR}{dbl Year of inventory}
-\item{LON_int}{chr Longitudinal bounding box in decimal degrees.}
-\item{LAT_int}{chr Latitudinal bounding box in decimal degrees.}
-\item{SPCD}{dbl FIA species code}
+\item{x}{dbl Longitudinal grid cell center.}
+\item{y}{chr Latitudinal grid cell center.}
+\item{ID}{dbl Grid cell ID, can be used to join with asgerbachelor::aggregationGrid.}
+\item{samples}{dbl Number of FIA plots in grid cell at a given inventory year.}
+\item{SPCD}{dbl FIA species code.}
 \item{density}{dbl Number of species per plot in the bounding box. Calculated simply as number of individuals divided by number of plots.}
 }
 }
@@ -18,6 +20,6 @@ A tibble with 243 rows and 10 variables:
 FIA
 }
 \description{
-Species are encoded by FIA species codes, and geographical bounding boxes in latitude/longititude degrees. Density is species per FIA plot.
+Species are encoded by FIA species codes, and coordinates are in EPSG:2163 (for details = "sf::st_crs(2163)$proj4string"). Density is species per FIA plot.
 }
 \keyword{datasets}

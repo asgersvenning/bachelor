@@ -1,10 +1,15 @@
+library(devtools)
+library(roxygen2)
+library(devtools)
+
 library(tidyverse)
 library(sf)
+library(stars)
 
 ## Load in data
 # (The data is heavily preprocessed at this point!)
 # The FIA data is aggregated two a grid, so no further processing is needed
-FIA <- read_csv2(here::here("data-raw","FIA.csv"))
+FIA <- read_csv2(here::here("data-raw","FIA_grid.csv"))
 PLANTS <- read_csv2(here::here("data-raw","PLANTS.csv"))
 
 # The PLANTS dataset is loaded in long format, and contains information
@@ -27,6 +32,10 @@ PLANTS_traits <- PLANTS %>%
               values_from = value,
               values_fill = NA) %>% 
   select(!`NA`) 
+
+# The aggregation grid is loaded as a stars object
+aggregationGrid <- read_stars(here::here("data-raw","aggregationGrid.tif")) %>% 
+  rename(ID = "aggregationGrid.tif") 
 
 # The EPA ecoregions are originally contained in a single collection of polygons
 # which is disaggregated at the lowest resolution ("LEVEL 4"), but still annotated
@@ -62,16 +71,19 @@ usethis::use_data(PLANTS_meta, overwrite = T)
 usethis::use_data(PLANTS_traits, overwrite = T)
 
 # Ecoregions level 0
-usethis::use_data(ecoregions_L0, overwrite = T)
+usethis::use_data(ecoregions_L0, overwrite = T, compress = "xz")
 
 # Ecoregions level 1
-usethis::use_data(ecoregions_L1, overwrite = T)
+usethis::use_data(ecoregions_L1, overwrite = T, compress = "xz")
 
 # Ecoregions level 2
-usethis::use_data(ecoregions_L2, overwrite = T)
+usethis::use_data(ecoregions_L2, overwrite = T, compress = "xz")
 
 # Ecoregions level 3
-usethis::use_data(ecoregions_L3, overwrite = T)
+usethis::use_data(ecoregions_L3, overwrite = T, compress = "xz")
 
 # Ecoregions level 4
-usethis::use_data(ecoregions_L4, overwrite = T)
+usethis::use_data(ecoregions_L4, overwrite = T, compress = "xz")
+
+# Aggregation grid
+usethis::use_data(aggregationGrid, overwrite = T)
