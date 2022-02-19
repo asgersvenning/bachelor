@@ -1,3 +1,5 @@
+#' @export
+
 createDictionary <- function(meta, code, value) {
   codes <- meta[[code]]
   values <- meta[[value]]

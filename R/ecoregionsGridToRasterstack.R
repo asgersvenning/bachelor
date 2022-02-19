@@ -1,7 +1,21 @@
+#' @importFrom magrittr %>%
+#' @importFrom dplyr mutate
+#' @importFrom dplyr across
+#' @importFrom dplyr group_by
+#' @importFrom dplyr ungroup
+#' @importFrom dplyr select
+#' @importFrom dplyr summarize
+#' @importFrom tidyr complete
+#' @importFrom tidyr nest
+#' @importFrom tidyselect contains
+#' @importFrom purrr map
+#' @importFrom methods as
+#' @export
+
 ecoregionsGridToRasterstack <- function(ecoregionsGrid, grid) {
   out <- ecoregionsGrid %>% 
-    select(c(ID,contains("_KEY"),proportion)) %>% 
-    group_by(across(contains("_KEY"))) %>% 
+    select(c(ID,tidyselect::contains("_KEY"),proportion)) %>% 
+    group_by(dplyr::across(tidyselect::contains("_KEY"))) %>% 
     complete(
       ID = grid %>% 
         dim %>% 

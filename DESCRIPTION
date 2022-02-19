@@ -7,8 +7,7 @@ Authors@R:
            email = "asgersvenning@gmail.com", 
            role = c("aut", "cre"))
 Description: This is a project for storing data and scripts used in my bachelors project. The goal of the project is to utilize datasets such as FIA, USDA PLANTS and EPA ecoregions, to analyze the relationships between functional diversity and species richness.
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
@@ -16,7 +15,18 @@ Depends:
     R (>= 2.10)
 LazyData: true
 Imports: 
-    tibble
+    magrittr,
+    dplyr,
+    tibble,
+    sf,
+    purrr,
+    tidyselect,
+    tidyr,
+    stars,
+    raster,
+    rlang,
+    units,
+    methods
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

@@ -1,3 +1,25 @@
+#' @importFrom magrittr %>%
+#' @importFrom dplyr mutate
+#' @importFrom dplyr across
+#' @importFrom dplyr group_by
+#' @importFrom dplyr ungroup
+#' @importFrom dplyr select
+#' @importFrom dplyr summarize
+#' @importFrom dplyr arrange
+#' @importFrom tidyr complete
+#' @importFrom tidyr nest
+#' @importFrom tidyselect contains
+#' @importFrom purrr map
+#' @importFrom tibble as_tibble
+#' @importFrom sf st_as_sf
+#' @importFrom sf st_area
+#' @importFrom sf st_transform
+#' @importFrom sf st_simplify
+#' @importFrom sf st_intersection
+#' @importFrom sf st_crs
+#' @import stars
+#' @export
+
 ecoregionsToGrid <- function(grid, 
                              level, 
                              simplify, 
@@ -11,7 +33,7 @@ ecoregionsToGrid <- function(grid,
     } else if (level == 2) {
       asgerbachelor::ecoregions_L2
     } else if (level == 3) {
-      asgerbachelor::ecoregions_L
+      asgerbachelor::ecoregions_L3
     } else if (level == 4) {
       asgerbachelor::ecoregions_L4} 
   
@@ -35,8 +57,7 @@ ecoregionsToGrid <- function(grid,
     group_by(ID, {{lcol}}, geometry) %>% 
     summarize(proportion = sum(area)/gridArea,
               .groups = "drop") %>% 
-    mutate(across({{lcol}}, factor)) %>% 
-    {
+    mutate(across({{lcol}}, factor)) %>% {
       if (complete) group_by(., ID, geometry) %>% 
         complete({{lcol}}, fill = list(proportion = 0)) %>% 
         ungroup else .

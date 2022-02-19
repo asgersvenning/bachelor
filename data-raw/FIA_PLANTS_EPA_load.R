@@ -62,13 +62,13 @@ ecoregions_L4 <- read_sf(here::here("data-raw","EPA","dissolved","ecoregions_L4.
 
 ## Saving the data
 # FIA
-usethis::use_data(FIA, overwrite = T)
+usethis::use_data(FIA, overwrite = T, compress = "xz")
 
 # PLANTS meta
-usethis::use_data(PLANTS_meta, overwrite = T)
+usethis::use_data(PLANTS_meta, overwrite = T, compress = "xz")
 
 # PLANTS traits
-usethis::use_data(PLANTS_traits, overwrite = T)
+usethis::use_data(PLANTS_traits, overwrite = T, compress = "xz")
 
 # Ecoregions level 0
 usethis::use_data(ecoregions_L0, overwrite = T, compress = "xz")
@@ -86,4 +86,4 @@ usethis::use_data(ecoregions_L3, overwrite = T, compress = "xz")
 usethis::use_data(ecoregions_L4, overwrite = T, compress = "xz")
 
 # Aggregation grid
-usethis::use_data(aggregationGrid, overwrite = T)
+usethis::use_data(aggregationGrid, overwrite = T, compress = "xz")
