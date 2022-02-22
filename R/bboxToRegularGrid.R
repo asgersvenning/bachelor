@@ -1,3 +1,9 @@
+#' Create a regular grid from a bounding box. 
+#' 
+#' @param bbox a vector giving the bounding box of the grid.
+#' @param delta numeric. the width of the grid cells.
+#' @return a tibble 
+#' 
 #' @importFrom tibble tibble
 #' @export
 

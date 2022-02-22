@@ -1,3 +1,10 @@
+#' Converts the output of \code{ecoregionsToGrid} to a RasterStack.
+#' 
+#' @param ecoregionsGrid a tibble created by \code{ecoregionsToGrid}. 
+#' @param grid the same grid which was supplied to \code{ecoregionsToGrid} to create ecoregionsGrid.
+#' 
+#' @return a RasterStack with a layer for each class in ecoregionsGrid. Values correspond to coverage proportion.
+#' 
 #' @importFrom magrittr %>%
 #' @importFrom dplyr mutate
 #' @importFrom dplyr across

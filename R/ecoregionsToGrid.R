@@ -1,3 +1,12 @@
+#' Aggregates EPA ecoregions to a grid.
+#' 
+#' @param grid a stars grid created by \code{createAggregationGrid}.
+#' @param level integer between 1-4. The EPA ecoregion level to aggregate.
+#' @param simplify integer. Passed to \code{sf::st_simplify} on EPA ecoregions polygons before aggregating. Massively decreases computation time when set to a high number.
+#' @param complete logical. Is output sparse?
+#' 
+#' @return a tibble containing 4 columns: grid cell ID, EPA ecoregion class, grid cell geometry and grid cell class proportion.
+#' 
 #' @importFrom magrittr %>%
 #' @importFrom dplyr mutate
 #' @importFrom dplyr across
