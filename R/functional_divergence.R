@@ -14,9 +14,9 @@
 #' @export
 
 functional_divergence <- function(x, a = rep(1, nrow(x))) {
-  x <- x[n>0,] # Subset present species
-  n <- n[n>0]  # Subset present species
-  n <- n/sum(n)# Calculate relative abundances
+  x <- x[a>0,] # Subset present species
+  a <- a[a>0]  # Subset present species
+  a <- a/sum(a)# Calculate relative abundances
   
   l <- chull(x) # Calculate indices of convex hull
   
@@ -27,8 +27,8 @@ functional_divergence <- function(x, a = rep(1, nrow(x))) {
   mdcg <- mean(dcg) # Mean distance to center of gravity
   ddcg <- dcg - mdcg # Distance anomaly from center of gravity
   
-  wddcg <- sum(ddcg*n) # Weighted sum of distance anomalies
-  awddcg <- sum(abs(ddcg)*n)  # Weighted sum of absolute distance anomalies
+  wddcg <- sum(ddcg*a) # Weighted sum of distance anomalies
+  awddcg <- sum(abs(ddcg)*a)  # Weighted sum of absolute distance anomalies
   out <- (wddcg + mdcg)/(awddcg + mdcg)
   
   return(out)

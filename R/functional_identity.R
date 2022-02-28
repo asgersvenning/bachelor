@@ -18,9 +18,9 @@
 #' @export
 
 functional_identity <- function(x, a = rep(1, nrow(x))) {
-  n <- n/sum(n) # Relative abundances
+  a <- a/sum(a) # Relative abundances
   
-  out <- (t(x) %*% n) %>% as.vector %>% t %>% as_tibble # Abundance weighted column means
+  out <- (t(x) %*% a) %>% as.vector %>% t %>% as_tibble # Abundance weighted column means
   
   if (!is.null(colnames(x))) { # Set the output names based on the input trait names
     colnames(out) <- colnames(x)

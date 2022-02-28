@@ -22,7 +22,7 @@ quadratic_entropy <- function(x, a = rep(1, nrow(x)), raoScale=T, Botta_Dukat=F,
   if (approxRao!=0) {
     if (raoScale) stop("Unable to use divcmax on less than full dissimilarity matrix")
     return(sapply(1:approxRao, function(y) { # Sample (n=approxRao) pairs weighted by abundance, and calculate half-mean
-      ind <- sample.int(nrow(x),2,T, prob = n) # Pair indices
+      ind <- sample.int(nrow(x),2,T, prob = a) # Pair indices
       sum((x[ind[1],]-x[ind[2],])^2) # Pair dissimilarity
     }) %>% 
       mean / ifelse(Botta_Dukat,ncol(x),1) / 2) # Mean pair dissimilarity divided by 2 (and possible number of traits)
@@ -32,7 +32,7 @@ quadratic_entropy <- function(x, a = rep(1, nrow(x)), raoScale=T, Botta_Dukat=F,
   
   D <- as.matrix(dx)^2/ifelse(Botta_Dukat,ncol(x),1) # Possibly standardized by number of traits
   
-  out <- sum(D * outer(n,n)) / 2 / sum(n)^2 / # Abundance weighted sum of lower triangle of dissimilarity matrix
+  out <- sum(D * outer(a,a)) / 2 / sum(a)^2 / # Abundance weighted sum of lower triangle of dissimilarity matrix
     ifelse(raoScale, ade4::divcmax(dx)$value,1) # Possible scaled by maximum possible raoQ
   
   return(out)

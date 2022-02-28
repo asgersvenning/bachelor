@@ -23,11 +23,11 @@
 #' @export
 
 functional_evenness <- function(x, a = rep(1, nrow(x)), approxEvenness=F) {
-  x <- x[n>0,] # Subset present species
-  n <- n[n>0]  # Subset present species
-  n <- n/sum(n)# Relative abundances
+  x <- x[a>0,] # Subset present species
+  a <- a[a>0]  # Subset present species
+  a <- a/sum(a)# Relative abundances
   
-  S <- length(n)# Number of species
+  S <- length(a)# Number of species
   Ed <- 1/(S-1) # Expected edge length in minimum spanning tree
   
   if (isFALSE(approxEvenness)) {
@@ -36,7 +36,7 @@ functional_evenness <- function(x, a = rep(1, nrow(x)), approxEvenness=F) {
     li <- which(l, arr.ind = T) # Indices of mst-vertices
     li.lower <- li[diff(t(li))<0,] # Subset lower triangle
     
-    EW <- apply(li.lower, 1, function(y) dx[y[1],y[2]]/sum(n[y]))
+    EW <- apply(li.lower, 1, function(y) dx[y[1],y[2]]/sum(a[y]))
   }
   else {
     ## Slight change to spdep::mstree, since it apparently cannot handle listwdist(?)
@@ -91,7 +91,7 @@ functional_evenness <- function(x, a = rep(1, nrow(x)), approxEvenness=F) {
       },T)
     }
     if (is.null(li.lower)) stop("No connected graph found.")
-    EW <- apply(li.lower, 1, function(y) sqrt(sum((x[y[1],]-x[y[2],])^2))/sum(n[1:2])) # Weighted length of mst-edge
+    EW <- apply(li.lower, 1, function(y) sqrt(sum((x[y[1],]-x[y[2],])^2))/sum(a[1:2])) # Weighted length of mst-edge
   }
   
   PEW <- EW/sum(EW) # Relative weighted length of mst-edge

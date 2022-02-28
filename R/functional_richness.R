@@ -19,7 +19,7 @@
 #' @export
 
 functional_richness <- function(x, a = rep(1, nrow(x)), scaleRich = F, absolute = F) {
-  x <- x[n>0,] # Subset present species
+  x <- x[a>0,] # Subset present species
   if (!absolute) x <- apply(x, 2, scale) # Scale and center values, such that richness is invariant to trait scales
   
   out <- geometry::convhulln(x,output.options = "FA")$vol / # Volume of convex hull
