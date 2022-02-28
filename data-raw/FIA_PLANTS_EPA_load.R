@@ -45,6 +45,8 @@ aggregationGrid <- read_stars(here::here("data-raw","aggregationGrid.tif")) %>%
 # since the ecoregion coding scheme is hierarchichal). I have thus predissolved and/or
 # removed unnessary attributes for 5 different levels.
 
+ecoregions_meta <- read_csv2(here::here("data-raw","EPA","META","fullTable.csv"))
+
 # Level 0 -  NO regions
 ecoregions_L0 <- read_sf(here::here("data-raw","EPA","ecoregions_boundary.shp"))
 
@@ -69,6 +71,9 @@ usethis::use_data(PLANTS_meta, overwrite = T, compress = "xz")
 
 # PLANTS traits
 usethis::use_data(PLANTS_traits, overwrite = T, compress = "xz")
+
+# Ecoregions metadata
+usethis::use_data(ecoregions_meta, overwrite = T, compress = "xz")
 
 # Ecoregions level 0
 usethis::use_data(ecoregions_L0, overwrite = T, compress = "xz")
