@@ -9,19 +9,45 @@ functional_identity(x, a = rep(1, nrow(x)))
 \arguments{
 \item{x}{numeric matrix. Species-trait matrix.}
 
-\item{a}{optional numeric vector. Species-abundances.}
+\item{a}{optional numeric vector. Species-abundances (matrix), can be missing.}
 }
 \value{
-a number.
+A table of community functional identity (community weighted mean traits). In case 'a' is missing, simply the mean a table with one row, containing the mean traits.
 }
 \description{
 Calculates functional identity from a species-trait matrix and possibly an abundance vector.
+Functional identity is simply a fancy way of saying (community-weighted) mean traits.
 }
 \section{Details}{
 
 Names of functional traits are derived from x if present, otherwise they are formatted as "X"+"column number" to be aligned with FD::dbFD.
+
+In case of some of or all of the traits are factors, the trait levels must be converted to dummy columns. This can be done using the 'gower_traits' function in this package.
 }
 
+\examples{
+
+# An example using the data also supplied in the package. Note that the first part of the example, just shows how to create species-abundance and species-trait tables from the data, as well as subsetting species in the intersection of both data sources.
+library(hash)
+FIA_dict <- hash(PLANTS_meta$plants_code, PLANTS_meta$fia_code)
+PLANTS_dict <- invert(FIA_dict)
+
+tSP <- FIA \%>\% 
+  filter(INVYR>2000) \%>\% 
+  group_by(ID,SPCD) \%>\% 
+  summarise(
+    dens = mean(individuals/samples, na.rm = T),
+    .groups = "drop"
+  ) \%>\% 
+  filter(SPCD \%in\% values(FIA_dict,PLANTS_tG$traits$plants.code)) \%>\% 
+  pivot_wider(ID,SPCD,values_from=dens,names_prefix = "SP",values_fill = 0)
+
+PLANTS_tG <- PLANTS_traits \%>\% 
+  filter(plants_code \%in\% values(PLANTS_dict, str_remove(names(tSP)[-1],"^SP"))) \%>\% 
+  gower_traits(T)
+
+tFI <- functional_identity(PLANTS_tG$traits[,-1],rep(1,372))
+}
 \references{
 \insertRef{Villeger2008}{asgerbachelor}
 }

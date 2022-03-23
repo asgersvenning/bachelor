@@ -6,16 +6,16 @@
 #' @param x numeric vector. A vector of observations to calculate the ECDF on.
 #' @param w a numeric vector, matrix or data frame. A vector, matrix or data frame of weights to calculate the ECDF on. If a matrix or data frame, rows are considered vectors of weights.
 #' @param scale a logical. If true 'dis' is range-scaled, such that 'dis' is in [0,1].
-#' @return a table containing the weighted ECDF of 'dis' weighted by 'SP' evaluated at intervals of 'quantileSpacing'.
+#' @return a table containing the weighted ECDF of 'dis' weighted by 'SP' evaluated at each value of 'x'.
 #' 
 #' @section Details:
 #' This function calculates the weighted ECDF efficiently by constructing a matrix, with columns corresponding sorted values in 'x' and row correspond to values of 'x', where the values indicate whether the given value of 'x' is larger than the column value.
 #' 
-#' m_{i,j} = 1_{\[sort(x)_j >= x_i\]}
+#' \eqn{m_{i,j} = 1_{\[sort(x)_j >= x_i\]}}
 #' 
 #' By computing:
 #' 
-#' ecdf = m \cdot w^T 
+#' \eqn{ecdf = m \cdot w^T} 
 #' 
 #' where w is matrix or vector of weights for the ECDF.
 #' 

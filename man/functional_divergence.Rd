@@ -4,12 +4,16 @@
 \alias{functional_divergence}
 \title{Calculates functional divergence}
 \usage{
-functional_divergence(x, a = rep(1, nrow(x)))
+functional_divergence(x, w, a = rep(1, nrow(x)), ch = F, gower = T)
 }
 \arguments{
 \item{x}{numeric matrix. Species-trait matrix.}
 
+\item{w}{numeric vector. A vector of length equal to columns in 'x', which specifies the variable weights. If missing, weights are equal.}
+
 \item{a}{optional numeric vector. Species-abundances.}
+
+\item{gower}{a logical. Calculate entropy based on Gower dissimilarity as opposed to euclidean distance.}
 }
 \value{
 a number.
@@ -17,6 +21,14 @@ a number.
 \description{
 Calculates functional divergence from a species-trait matrix and possibly an abundance vector
 }
+\section{Details}{
+
+This functions implements functional divergence as it is defined in \insertCite{Villeger2008}{asgerbachelor},
+based on a weighted Gower dissimilarity measure (which is equivalent to the calculation in FD::gowdis, expect it doesn't handle ordered factors or assymetric binary variables).
+
+It also supplies the option of calculating the center of mass based on the convex hull of the first two principal coordinates.
+}
+
 \references{
 \insertRef{Villeger2008}{asgerbachelor}
 }

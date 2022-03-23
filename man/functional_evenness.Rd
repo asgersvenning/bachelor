@@ -4,25 +4,29 @@
 \alias{functional_evenness}
 \title{Calculates functional evenness}
 \usage{
-functional_evenness(x, a = rep(1, nrow(x)), approxEvenness = F)
+functional_evenness(x, w, a = rep(1, nrow(x)), gower = T)
 }
 \arguments{
 \item{x}{numeric matrix. Species-trait matrix.}
 
+\item{w}{numeric vector. A relative variable importance vector. Not used in case 'gower' = FALSE.}
+
 \item{a}{optional numeric vector. Species-abundances.}
 
-\item{approxEvenness}{a logical. Is evenness calculated precisely or estimated?}
+\item{gower}{a logical. Calculate entropy based on Gower dissimilarity as opposed to euclidean distance.}
 }
 \value{
-a number.
+a number. A double between 0 and 1.
 }
 \description{
 Calculates functional evenness from a species-trait matrix and possibly an abundance vector.
 }
 \section{Details}{
 
-When using 'approxEvenness=T', the minimum spanning tree is constructed on a KNN. KNN is computed iteratively, with increasing K, until a minimum spanning tree can be constructed.
-This is not how minimum spanning tree is supposed to be computed efficiently, but I couldn't find any implementation in any R-packages, that do not use the distance matrix to find the minimum spanning tree.
+The minimum spanning tree is constructed from a pairwise similiarity matrix, which is an inefficient way to do so.
+It seems however, that efficient implementations of minimum spanning trees escape the algorithmic landscape of R.
+
+Species with an abundance of 0, are automatically filtered, before any computations.
 }
 
 \references{
