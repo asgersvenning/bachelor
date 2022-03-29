@@ -1,28 +1,26 @@
-#' Calculates functional divergence
+#' Calculates functional dispersion
 #' 
-#' Calculates functional divergence from a species-trait matrix and possibly an abundance vector
+#' Calculates functional dispersion from a species-trait matrix and possibly an abundance vector
 #' 
 #' @param x numeric matrix. Species-trait matrix.
 #' @param w numeric vector. A vector of length equal to columns in 'x', which specifies the variable weights. If missing, weights are equal.
 #' @param a optional numeric vector. Species-abundances.
-#' @param ch optional numeric or logical. Should the center of be based on the convex hull of the species, if true the convex hull is estimated on a 2-D PCoA. If a numeric the convex hull is estimateds on a N-D PCoA.
 #' @param gower a logical. Calculate entropy based on Gower dissimilarity as opposed to euclidean distance.
+#' @param returnPartial an optional logical. If true the distances of each species to each center is returned along with the functional dispersion. 
 #' @return a number.
 #' 
 #' @section Details:
-#' This functions implements functional divergence as it is defined in \insertCite{Villeger2008}{asgerbachelor}, 
-#' based on a weighted Gower dissimilarity measure (which is equivalent to the calculation in FD::gowdis, expect it doesn't handle ordered factors or assymetric binary variables).
+#' This functions implements functional dispersion, as the mean distance/dissimilarity to the community weighted mean (traits). 
 #' 
-#' It also supplies the option of calculating the center of mass based on the convex hull of the first two principal coordinates.
+#' It also supplies the option of returning the "partial" dispersions, i.e. the distance/dissimilarity of each species in each site, from that center.
 #' 
-#' @references
-#' \insertRef{Villeger2008}{asgerbachelor}
+#' It also supplies the option of calculating the center of mass based on the convex hull of the first 2 or N principal coordinates. Caution should be used, when using this option, since this deviates from the definition of functional dispersion.
 #' 
 #' @importFrom magrittr %>% 
 #' @importFrom Rdpack reprompt
 #' @export
 
-functional_divergence <- function(x, w, a = rep(1, nrow(x)), ch = F, gower = T) {
+functional_dispersion <- function(x, w, a = rep(1, nrow(x)), ch = F, gower = T, returnPartial = F) {
   # Attempt to coerce x and a to matrices.
   if (is.vector(a)) a <- matrix(a, nrow = 1)
   if (inherits(x,"data.frame")) x <- as.matrix(x)
@@ -52,17 +50,20 @@ functional_divergence <- function(x, w, a = rep(1, nrow(x)), ch = F, gower = T) 
     x
   }
   
+  # Calculates the mean
+  center <- as.matrix(center) %>% 
+    inset(is.na(.),0) %>% 
+    t %>% 
+    multiply_by_matrix(t(a))  %>% 
+    t
+  
   # Calculate all distances to center of gravity
   dcg <- if (gower) gowerDissimilarity(x,w,colMeans(center,na.rm=T)) else sqrt(colSums((t(x) - colMeans(center,na.rm=T))^2))
   
-  mdcg <- as.vector((dcg %*% t((a>0) %>% {./rowSums(.)}))) # Mean distance to center of gravity
-  ddcg <- t(outer(dcg,mdcg,"-")) # Distance anomaly from center of gravity
+  # Mean distance to center of gravity
+  mdcg <- as.vector((dcg %*% t((a>0) %>% {./rowSums(.)}))) 
   
-  wddcg <- rowSums(a * ddcg) # Weighted sum of distance anomalies
-  awddcg <- rowSums(a * abs(ddcg))  # Weighted sum of absolute distance anomalies
-  
-  out <- (wddcg + mdcg)/(awddcg + mdcg)
+  out <- if (!returnPartial) mdcg else list(FDiv = mdcg, partial = dcg)
   
   return(out)
 }
-

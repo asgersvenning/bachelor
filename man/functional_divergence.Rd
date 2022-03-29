@@ -13,6 +13,8 @@ functional_divergence(x, w, a = rep(1, nrow(x)), ch = F, gower = T)
 
 \item{a}{optional numeric vector. Species-abundances.}
 
+\item{ch}{optional numeric or logical. Should the center of be based on the convex hull of the species, if true the convex hull is estimated on a 2-D PCoA. If a numeric the convex hull is estimateds on a N-D PCoA.}
+
 \item{gower}{a logical. Calculate entropy based on Gower dissimilarity as opposed to euclidean distance.}
 }
 \value{
