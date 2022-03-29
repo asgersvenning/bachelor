@@ -58,7 +58,7 @@ functional_dispersion <- function(x, w, a = rep(1, nrow(x)), ch = F, gower = T, 
     t
   
   # Calculate all distances to center of gravity
-  dcg <- if (gower) gowerDissimilarity(x,w,colMeans(center,na.rm=T)) else sqrt(colSums((t(x) - colMeans(center,na.rm=T))^2))
+  dcg <- if (gower) gowerDissimilarity(x,w,center) else t(apply(center, 1, function(z) sqrt(colSums((t(x) - z)^2))))
   
   # Mean distance to center of gravity
   mdcg <- as.vector((dcg %*% t((a>0) %>% {./rowSums(.)}))) 

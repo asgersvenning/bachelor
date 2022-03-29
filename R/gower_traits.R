@@ -4,6 +4,8 @@
 #' Furthermore this function supplies weights, which are inversely proportional to the number of dummy variables created for a given trait.
 #' 
 #' @param x numeric matrix. Species-trait matrix.
+#' @param hasNames a logical. Does the first column contain species names/codes?
+#' @param NA.tolerance a number between 0 and 1. Subset species which have a lower proportion of missing traits than 'NA.tolerance'.
 #' @return a list which includes the transformed trait table and the weights for each column in the table.
 #' 
 #' @section Details:

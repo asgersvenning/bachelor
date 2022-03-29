@@ -8,6 +8,10 @@ gower_traits(x, hasNames = F, NA.tolerance = 0.25)
 }
 \arguments{
 \item{x}{numeric matrix. Species-trait matrix.}
+
+\item{hasNames}{a logical. Does the first column contain species names/codes?}
+
+\item{NA.tolerance}{a number between 0 and 1. Subset species which have a lower proportion of missing traits than 'NA.tolerance'.}
 }
 \value{
 a list which includes the transformed trait table and the weights for each column in the table.
