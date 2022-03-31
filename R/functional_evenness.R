@@ -25,24 +25,41 @@
 #' @importFrom ape mst
 #' @export
 
-functional_evenness <- function(x, w, a = rep(1, nrow(x)), gower = T) {
-  x <- x[a>0,] # Subset present species
-  a <- a[a>0]  # Subset present species
-  a <- a/sum(a)# Relative abundances
+functional_evenness <- function (x, w, a = rep(1, nrow(x)), gower = T) {
+  if (is.vector(a)) 
+    a <- matrix(a, nrow = 1)
+  if (inherits(x, "data.frame")) 
+    x <- as.matrix(x)
+  if (inherits(a, "data.frame")) 
+    a <- as.matrix(a)
+  if (!is.matrix(a)) 
+    stop("Unable to coerce 'a' to matrix.")
+  if (!is.matrix(x)) 
+    stop("Unable to coerce 'x' to matrix.")
+  if (missing(w)) 
+    w <- rep(1, ncol(x))
+  if (!is.vector(w) | !is.numeric(w)) 
+    stop("'w' must be a numeric vector.")
+  a <- replace(a, is.na(a), 0)
+  a <- a/rowSums(a)
   
-  S <- length(a)# Number of species
-  Ed <- 1/(S-1) # Expected edge length in minimum spanning tree
+  dx <- as.matrix({if (gower) gowerDissimilarity(x, w) else dist(x)})
   
-  dx <- if (gower) FD::gowdis(x,w) else dist(x)
-  l <- unclass(ape::mst(dx))==1 # Logical encoding of minimum spanning tree
-  li <- which(l, arr.ind = T) # Indices of mst-vertices
-  li.lower <- li[diff(t(li))<0,] # Subset lower triangle
-  
-  EW <- apply(li.lower, 1, function(y) dx[y[1],y[2]]/sum(a[y]))
-  
-  PEW <- EW/sum(EW) # Relative weighted length of mst-edge
-  
-  out <- (sum(pmin(PEW,Ed))-Ed)/(1-Ed) 
-  
-  return(out)
+  apply(a, 1, function(com) {
+    S_list <- which(com>0)
+    S <- length(S_list)
+    Ed <- 1/(S - 1)
+    
+    aCom <- com[S_list]
+    dCom <-dx[S_list,S_list]
+    
+    l <- unclass(ape::mst(dCom)) == 1
+    li <- which(l, arr.ind = T)
+    li.lower <- li[diff(t(li)) < 0, ]
+    EW <- apply(li.lower, 1, function(y) dCom[y[1], y[2]]/sum(aCom[y]))
+    PEW <- EW/sum(EW)
+    
+    
+    (sum(pmin(PEW, Ed)) - Ed)/(1 - Ed)
+  })
 }

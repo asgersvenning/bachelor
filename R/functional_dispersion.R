@@ -20,50 +20,59 @@
 #' @importFrom Rdpack reprompt
 #' @export
 
-functional_dispersion <- function(x, w, a = rep(1, nrow(x)), ch = F, gower = T, returnPartial = F) {
-  # Attempt to coerce x and a to matrices.
-  if (is.vector(a)) a <- matrix(a, nrow = 1)
-  if (inherits(x,"data.frame")) x <- as.matrix(x)
-  if (inherits(a,"data.frame")) a <- as.matrix(a)
-  
-  if (!is.matrix(a)) stop("Unable to coerce 'a' to matrix.")
-  if (!is.matrix(x)) stop("Unable to coerce 'x' to matrix.")
-  
-  if (missing(w)) w <- rep(1,ncol(x))
-  if (!is.vector(w) | !is.numeric(w)) stop("'w' must be a numeric vector.")
-  
+functional_dispersion <- function (x, w, a = rep(1, nrow(x)), ch = F, gower = T, returnPartial = F) 
+{
+  if (is.vector(a)) 
+    a <- matrix(a, nrow = 1)
+  if (inherits(x, "data.frame")) 
+    x <- as.matrix(x)
+  if (inherits(a, "data.frame")) 
+    a <- as.matrix(a)
+  if (!is.matrix(a)) 
+    stop("Unable to coerce 'a' to matrix.")
+  if (!is.matrix(x)) 
+    stop("Unable to coerce 'x' to matrix.")
+  if (missing(w)) 
+    w <- rep(1, ncol(x))
+  if (!is.vector(w) | !is.numeric(w)) 
+    stop("'w' must be a numeric vector.")
   a <- replace(a, is.na(a), 0)
-  a <- a / rowSums(a)
+  a <- a/rowSums(a)
   
-  # Calculates which point to use for center of mass calculation. 
-  center <- if (!isFALSE(ch)) {
-    if (isTRUE(ch) | ch==2) {
-      x[chull(cmdscale({if (gower) FD::gowdis(x,w) else dist(x)})),]
-    } else if (is.numeric(ch)) {
-      x[geometry::convhulln(cmdscale({if (gower) FD::gowdis(x,w) else dist(x)},ch), output.options = "FA")$hull %>% 
-          as.vector %>% 
-          unique,]
-    } else {
-      stop("'ch' must be a logical or numeric.") 
+  d <- if (gower) gowerDissimilarity(x, w) else dist(x)
+  
+  centerInd <- if (!isFALSE(ch)) {
+    if (isTRUE(ch) | ch == 2) {
+      chull(cmdscale(d))
     }
-  } else {
-    x
+    else if (is.numeric(ch)) {
+      unique(as.vector(geometry::convhulln(cmdscale(d, ch))))
+    }
+    else {
+      stop("'ch' must be a logical or numeric.")
+    }
+  }
+  else {
+    1:nrow(x)
+  }
+  center <- a[,centerInd] %*% as.matrix(x[centerInd,])
+  
+  dcg <- if (gower) {
+    gowerDissimilarity(x, w, center)
+  }
+  else {
+    t(apply(center, 1, function(z) sqrt(colSums((t(x) - z)^2))))
   }
   
-  # Calculates the mean
-  center <- as.matrix(center) %>% 
-    inset(is.na(.),0) %>% 
-    t %>% 
-    multiply_by_matrix(t(a))  %>% 
-    t
+  partialDisp <- ifelse(a==0,NA,a) * dcg
   
-  # Calculate all distances to center of gravity
-  dcg <- if (gower) gowerDissimilarity(x,w,center) else t(apply(center, 1, function(z) sqrt(colSums((t(x) - z)^2))))
+  dispersion <- rowSums(partialDisp, na.rm=T)
   
-  # Mean distance to center of gravity
-  mdcg <- as.vector((dcg %*% t((a>0) %>% {./rowSums(.)}))) 
-  
-  out <- if (!returnPartial) mdcg else list(FDiv = mdcg, partial = dcg)
-  
+  out <- if (!returnPartial) 
+    dispersion
+  else {
+    partialDisp[partialDisp==0] <- NA
+    list(FDis = dispersion, partial = partialDisp)
+  }
   return(out)
 }

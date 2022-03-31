@@ -58,31 +58,33 @@
 #'                                                  xlab = "Functional richness")
 
 
-functional_richness <- function(x, a = rep(1, nrow(x)), relative = F) {
-  # Attempt to coerce x and a to matrices.
-  if (is.vector(a)) a <- matrix(a, nrow = 1)
-  if (inherits(a,"data.frame")) a <- as.matrix(a)
-  if (inherits(x,"data.frame")) x <- as.matrix(x)
+functional_richness <- function (x, w, a = rep(1, nrow(x)), relative = F, ndim = NULL, gower = T) {
+  if (is.vector(a)) 
+    a <- matrix(a, nrow = 1)
+  if (inherits(a, "data.frame")) 
+    a <- as.matrix(a)
+  if (inherits(x, "data.frame")) 
+    x <- as.matrix(x)
+  if (!is.matrix(x)) 
+    stop("Cannot coerce 'x' to matrix.")
+  if (!is.matrix(a)) 
+    stop("Cannot coerce 'a' to matrix.")
   
-  # Return resonable error messages.
-  if (!is.matrix(x)) stop("Cannot coerce 'x' to matrix.")
-  if (!is.matrix(a)) stop("Cannot coerce 'a' to matrix.")
+  if (ncol(x)>=nrow(x)) stop(paste0("Number of traits must be larger than the number of species, use ndim < ", nrow(x),"!"))
+  
+  if (!is.null(ndim)) {
+    if (!is.numeric(ndim) | length(ndim) != 1 | (ndim %% 1) != 0) stop("'ndim' must be null or a whole number.")
+    
+    x <- cmdscale({if (gower) gowerDissimilarity(x,w) else dist(x)},ndim)
+  }
+  
   
   out <- apply(a, 1, function(c) {
-    # If a community doesn't have any species, set functional richness to 0.
     if (all(c == 0)) return(0)
-
-    # The number of species must be greater than the number of traits, to compute the convex hull.
-    if (!(sum(c > 0) > ncol(x))) return(NA)
-    
-    # Subset present species
-    xC <- x[c>0,]
-    
-    # Volume of convex hull
-    geometry::convhulln(xC,output.options = "FA")$vol /
-      # Possibly standardized by the volume of the minimum encapsulating (hyper-)cube
-      ifelse(relative, prod(abs(diff(apply(xC,2,range)))),1) 
+    if (sum(c > 0) <= ncol(x)) return(NA)
+    xC <- x[c > 0, ]
+    geometry::convhulln(xC, output.options = "FA")$vol/ifelse(relative, 
+                                                              prod(abs(diff(apply(xC, 2, range)))), 1)
   })
-  
   return(out)
 }
