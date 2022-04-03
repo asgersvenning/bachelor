@@ -64,9 +64,9 @@ functional_dispersion <- function (x, w, a = rep(1, nrow(x)), ch = F, gower = T,
     t(apply(center, 1, function(z) sqrt(colSums((t(x) - z)^2))))
   }
   
-  partialDisp <- ifelse(a==0,NA,a) * dcg
+  partialDisp <- ifelse(a==0,NA,1) * dcg
   
-  dispersion <- rowSums(partialDisp, na.rm=T)
+  dispersion <- rowSums(partialDisp*a, na.rm=T)
   
   out <- if (!returnPartial) 
     dispersion
