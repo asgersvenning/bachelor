@@ -1,0 +1,76 @@
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{lipsum}
+\usepackage{caption}
+\usepackage[export]{adjustbox}
+\usepackage{titling}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{relsize}
+\usepackage{changepage}
+\usepackage{placeins}
+\usepackage{hyperref}
+\usepackage{todonotes}
+\usepackage{tcolorbox}
+\usepackage{textcomp}
+\usepackage{threeparttable}
+
+\pretitle{\begin{center}\LARGE}
+\posttitle{\end{center}\vspace{2cm}\begin{center}\includegraphics[width=12cm]{Aarhus_University_seal.png}\\[\bigskipamount]\end{center}\vspace{2cm}}
+\preauthor{\begin{center}\large}
+\postauthor{\end{center}\vspace{-0.25in}}
+\predate{\begin{center}}
+\postdate{\end{center}\begin{center}\huge\textcolor{RoyalBlue}{Aarhus University}\end{center}\newpage}
+
+\DeclareCaptionFormat{custom}{
+  \begin{tcolorbox}[
+  colback=black!10,
+  colframe=black!75,
+  title=#1#2,
+  arc=0pt,
+  outer arc=0pt,
+  boxrule=1pt,
+  left=1pt,
+  right=1pt,
+  top=1pt,
+  bottom=1pt,
+  toptitle=3pt,
+  bottomtitle=3pt
+  ]
+    \small #3
+  \end{tcolorbox}
+}
+\DeclareCaptionLabelFormat{custom}
+{
+      \textbf{#1 #2}
+}
+
+\captionsetup{
+    format=custom,
+    labelformat=custom,
+    labelsep=none,
+    belowskip=-20pt
+}
+
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\thefootnote}{[\alph{footnote}]}
+\renewcommand{\thefigure}{\arabic{figure}}
+\renewcommand{\thetable}{\arabic{table}}
+
+\pagestyle{fancy}
+
+\fancyhead[L]{Asger Svenning}
+\fancyhead[R]{\textcolor{RoyalBlue}{Aarhus University}}
+
+\newcommand{\bquote}{\begin{adjustwidth}{0.05\textwidth}{0.05\textwidth}\centering}
+\newcommand{\equote}{\end{adjustwidth}}
+
+
+\newcommand{\aref}[1]{\hyperref[#1]{appendix~\ref*{#1}}}
+
+
+
+\thispagestyle{empty}

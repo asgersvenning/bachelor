@@ -3,8 +3,11 @@
 #' Calculates functional richness from a species-trait matrix and possibly an abundance vector.
 #' 
 #' @param x numeric matrix. Species-trait matrix.
+#' @param w an optional numeric vector. Trait weights for use in gower dissimilarity computation (if 'gower' = T).
 #' @param a optional numeric vector. Species-abundances.
 #' @param relative a logical. Calculate functional richness as a proportion of maximum value.
+#' @param ndim an optional integer. If supplied the trait space will be ordinated using principal coordinate analysis (PCoA) to a lower dimensional space equal to the value of this parameter. This can speed up the computational time significantly, and is almost mandatory if the number of traits is > 10.
+#' @param gower a logical. If true the trait dissimilarity metric will be gower dissimilarity, otherwise euclidean distance will be used.
 #' @return a number.
 #' 
 #' @references
@@ -13,7 +16,7 @@
 #' @section Details:
 #' When using 'relative=T', the maximum volume is computed as the product of the functional trait axis ranges, and standardization is carried out by dividing the convex hull volume by this hypercube volume.
 #'
-#' OBS: The computation of the convex hull, is extremely slow for large numbers of species and traits. In that case, consider ordinating the traits to a lower dimensionality.
+#' OBS: The computation of the convex hull, is extremely slow for large numbers of species and traits. In that case, consider ordinating the traits to a lower dimensionality using the 'ndim' parameter.
 #'
 #' @importFrom Rdpack reprompt
 #' @importFrom geometry convhulln

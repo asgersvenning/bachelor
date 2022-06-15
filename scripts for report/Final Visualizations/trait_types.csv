@@ -1,0 +1,83 @@
+﻿"variable","type","value_1","value_2","value_3","value_4","value_5"
+"Active Growth Period",NA,"Spring and Summer","Year Round","Fall, Winter and Spring","Spring, Summer, Fall","Fall"
+"Adapted to Coarse Textured Soils",NA,"Yes","No",NA,NA,NA
+"Adapted to Fine Textured Soils",NA,"Yes","No",NA,NA,NA
+"Adapted to Medium Textured Soils",NA,"Yes","No",NA,NA,NA
+"Anaerobic Tolerance",NA,"None","Low","Medium","High",NA
+"Berry/Nut/Seed Product",NA,"No","Yes",NA,NA,NA
+"Bloat",NA,"None","Medium","Low",NA,NA
+"Bloom Period",NA,"Late Spring","Mid Summer","Mid Spring","Spring","Early Spring"
+"C:N Ratio",NA,"High","Low","Medium",NA,NA
+"CaCO3 Tolerance",NA,"Low","Medium","None","High",NA
+"Christmas Tree Product",NA,"Yes","No",NA,NA,NA
+"Cold Stratification Required",NA,"Yes","No",NA,NA,NA
+"Commercial Availability",NA,"Routinely Available","Field Collections Only","Contracting Only","No Known Source",NA
+"Coppice Potential",NA,"No","Yes",NA,NA,NA
+"Drought Tolerance",NA,"Low","Medium","High","None",NA
+"Fall Conspicuous",NA,"Yes","No",NA,NA,NA
+"Fertility Requirement",NA,"Low","Medium","High",NA,NA
+"Fire Resistant",NA,"No","Yes",NA,NA,NA
+"Fire Tolerance",NA,"None","Low","Medium","High",NA
+"Flower Color",NA,"Yellow","Red","Purple","Brown","Green"
+"Flower Conspicuous",NA,"No","Yes",NA,NA,NA
+"Fodder Product",NA,"No","Yes",NA,NA,NA
+"Foliage Color",NA,"Gray-Green","Green","Dark Green","Yellow-Green","Red"
+"Foliage Porosity Summer",NA,"Dense","Moderate","Porous",NA,NA
+"Foliage Porosity Winter",NA,"Dense","Moderate","Porous",NA,NA
+"Foliage Texture",NA,"Medium","Fine","Coarse",NA,NA
+"Frost Free Days, Minimum",NA,"90","80","60","120","50"
+"Fruit/Seed Abundance",NA,"Low","Medium","High",NA,NA
+"Fruit/Seed Color",NA,"Brown","Purple","Red","Yellow","Green"
+"Fruit/Seed Conspicuous",NA,"No","Yes",NA,NA,NA
+"Fruit/Seed Period Begin",NA,"Summer","Fall","Spring","Year Round","Winter"
+"Fruit/Seed Period End",NA,"Fall","Summer","Year Round","Spring","Winter"
+"Fruit/Seed Persistence",NA,"No","Yes",NA,NA,NA
+"Fuelwood Product",NA,"Low","Medium","High",NA,NA
+"Growth Form",NA,"Single Stem","Multiple Stem","Single Crown","Thicket Forming","Rhizomatous"
+"Growth Rate",NA,"Slow","Moderate","Rapid",NA,NA
+"Hedge Tolerance",NA,"None","Low","Medium","High",NA
+"Height at 20 Years, Maximum (feet)",NA,"20","18","25","15","35"
+"Height, Mature (feet)",NA,"165.0","60.0","120.0","55.0","150.0"
+"Known Allelopath",NA,"No","Yes",NA,NA,NA
+"Leaf Retention",NA,"Yes","No",NA,NA,NA
+"Lifespan",NA,"Long","Short","Moderate",NA,NA
+"Low Growing Grass",NA,"No",NA,NA,NA,NA
+"Lumber Product",NA,"Yes","No",NA,NA,NA
+"Moisture Use",NA,"Medium","Low","High",NA,NA
+"Naval Store Product",NA,"No","Yes",NA,NA,NA
+"Nitrogen Fixation",NA,"None","High","Medium","Low",NA
+"Nursery Stock Product",NA,"No","Yes",NA,NA,NA
+"Palatable Browse Animal",NA,"Low","Medium","High",NA,NA
+"Palatable Human",NA,"No","Yes",NA,NA,NA
+"pH, Maximum",NA,"6.0","7.8","5.5","7.5","6.5"
+"pH, Minimum",NA,"3.3","4.0","5.5","3.5","4.5"
+"Planting Density per Acre, Maximum",NA,"700","1200","1100","640","400"
+"Planting Density per Acre, Minimum",NA,"300","435","430","700","170"
+"Post Product",NA,"No","Yes",NA,NA,NA
+"Precipitation, Maximum",NA,"260","60","80","100","150"
+"Precipitation, Minimum",NA,"38","13","18","45","11"
+"Propagated by Bare Root",NA,"Yes","No",NA,NA,NA
+"Propagated by Bulb",NA,"No",NA,NA,NA,NA
+"Propagated by Container",NA,"Yes","No",NA,NA,NA
+"Propagated by Corm",NA,"No",NA,NA,NA,NA
+"Propagated by Cuttings",NA,"No","Yes",NA,NA,NA
+"Propagated by Seed",NA,"Yes","No",NA,NA,NA
+"Propagated by Sod",NA,"No","Yes",NA,NA,NA
+"Propagated by Sprigs",NA,"No","Yes",NA,NA,NA
+"Propagated by Tubers",NA,"No",NA,NA,NA,NA
+"Pulpwood Product",NA,"Yes","No",NA,NA,NA
+"Resprout Ability",NA,"No","Yes",NA,NA,NA
+"Root Depth, Minimum (inches)",NA,"36","20","40","6","24"
+"Salinity Tolerance",NA,"None","Low","Medium","High",NA
+"Seed per Pound",NA,"11280","59840","15920","60800","23200"
+"Seed Spread Rate",NA,"Slow","Moderate","Rapid","None",NA
+"Seedling Vigor",NA,"Low","Medium","High",NA,NA
+"Shade Tolerance",NA,"Tolerant","Intermediate","Intolerant",NA,NA
+"Shape and Orientation",NA,"Erect","Conical","Rounded","Semi-Erect","Irregular"
+"Small Grain",NA,"No",NA,NA,NA,NA
+"Temperature, Minimum (°F)",NA,"-28","-43","-38","-23","-33"
+"Toxicity",NA,"None","Slight","Severe","Moderate",NA
+"Vegetative Spread Rate",NA,"None","Moderate","Slow","Rapid",NA
+"Veneer Product",NA,"Yes","No",NA,NA,NA
+"Protein Potential",NA,"Low","High","Medium",NA,NA
+"Palatable Graze Animal",NA,"Low","Medium","High",NA,NA

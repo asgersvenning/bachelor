@@ -1,0 +1,69 @@
+---
+title: "TEST"
+date: "`r Sys.Date()`"
+output:
+  bookdown::pdf_book:
+    keep_tex: true
+    includes:
+      in_header: preamble.tex
+bibliography: ../references.bib
+fontsize: 10pt
+urlcolor: blue
+---
+
+\lipsum[1]
+
+\newlength{\oldintextsep}
+\setlength{\oldintextsep}{\intextsep}
+
+\setlength\intextsep{0pt}
+
+```{r kab, echo = F, results='hold'}
+suppressPackageStartupMessages(library(tidyverse))
+library(kableExtra) %>% suppressPackageStartupMessages()
+library(magrittr) %>% suppressPackageStartupMessages()
+
+fix_wrap_kable <- function(kbl) {
+
+  kbl <- kbl %>% 
+    str_remove(paste0("\\\\caption[{].+[}]\\n")) %>% 
+    str_replace("\\\\end[{]tabular[}]",
+                paste0("\\\\end{tabular}\n\\\\caption{",attributes(kbl)$kable_meta$caption %>%
+                         str_replace("(?<=[(]\\\\#.{0,100})[)]","}") %>% 
+                         str_replace("\\label[{]|[(]\\\\#","\\\\\\\\label{"),"}\n")) %>% 
+    set_attributes(attributes(kbl))
+  
+  attributes(kbl)$kable_meta$caption <- NA
+  
+  return(kbl)
+}
+
+remove_whitespace_wrap_kable <- function(kbl,bottom="-1cm",top="0cm") {
+  kbl %>% 
+    str_replace("(?=\\n\\\\end[{].{0,4}table[}])",
+                paste0("\\\\vspace{",bottom,"}")) %>% 
+    str_replace("(?<=\\\\begin[{]wraptable[}].{0,30}\\n)(?=\\n\\\\centering)",
+                paste0("\\\\vspace{",top,"}")) %>% 
+    set_attributes(attributes(kbl))
+}
+
+tibble(x = c("a","b","c","d","e"),
+       y = sample(100,5,T),
+       z = c("$\\frac{\\alpha}{\\beta}$","$\\boldsymbol{\\Omega}$","$2.1 \\cdot 10^{-3}$", "2.1","abc"),
+       "$\\mathbf{X}$" = stringi::stri_rand_lipsum(5) %>% 
+         sapply(str_extract,pattern=".{0,40}") %>% 
+         sapply(str_wrap,width=20) %>% 
+         unname %>% 
+         linebreak) %>% 
+  kable("latex",caption=stringi::stri_rand_lipsum(1),booktabs=T,escape=F,align="cccl") %>% 
+  kable_paper(full_width=F,position="float_right") %>% 
+  pack_rows(index = c("Group 1" = 2, "Group 2" = 3)) %>% 
+  column_spec(4,background = spec_color(1:5)) %>% 
+  fix_wrap_kable()
+```
+
+\lipsum (END) [@R-mgcv-1; @R-mgcv-2; @R-mgcv-3; @R-mgcv-4; @R-mgcv-5]
+
+
+
+<!-- \include{tab.tex} -->

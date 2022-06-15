@@ -1,0 +1,520 @@
+---
+title: "A Functional Investigation of Species Richness Relationships in the North American Tree Flora"
+subtitle: ""
+author: "Asger Svenning"
+date: "`r Sys.Date()`"
+toc-title: "Table of Contents"
+output:
+  bookdown::pdf_book:
+    latex_engine: pdflatex
+    toc: yes
+    number_sections: true
+    keep_tex: true
+    includes:
+      in_header: preamble.tex
+fontsize: 10pt
+bibliography: ../references.bib
+link-citations: yes
+csl: nature.csl
+urlcolor: blue
+---
+
+```{r setup, include=FALSE, eval=TRUE}
+library(rmarkdown)
+library(bookdown)
+library(tidyverse)
+library(magrittr)
+library(kableExtra)
+library(readr)
+library(stats)
+library(latex2exp)
+library(readxl)
+library(bibtex)
+library(extrafont)
+
+
+options(rgl.useNULL=TRUE, max.print = 200)
+
+knitr::opts_chunk$set(echo = FALSE, message = FALSE,
+                      warning = FALSE, dev = "cairo_pdf")
+knitr::knit_hooks$set(document = function(x) {
+  sub('\\usepackage[]{color}', '\\usepackage{xcolor}', x, fixed = TRUE)
+})
+
+trace(grDevices::png, quote({
+  if (missing(type) && missing(antialias)) {
+    type <- "cairo-png"
+    antialias <- "subpixel"
+  }
+}), print = FALSE)
+knitr::opts_chunk$set(echo = TRUE)
+
+# read.bib("../references.bib")  
+#     mutate(CATEGORY = str_remove_all(CATEGORY,"_")) %>% 
+#     df2bib("references.bib",append=F)
+
+
+labelP <- function(y) map_chr(y, function(x) {
+  if (x == 0) {
+    out <- "$0"
+  }
+  else if (abs(x) > 0.0001) {
+    out <- paste0("$",str_extract(x,"^.+\\..{4}"))
+  } 
+  else {
+    out <- scales::scientific(x,2) %>% 
+      str_replace("e"," \\\\cdot 10^{")
+    
+    out <- paste0("$",out,"}")
+  }
+  
+  return(paste0(out,c(paste0(rep("\\star ",3),collapse=""),paste0(rep("\\star ",2),collapse=""),"\\star ",".","")[which(x < c(0.0005, 0.005, 0.05, 0.1, 1))[1]],"$"))
+})
+
+labelN <- function(y) map_chr(y, function(x) {
+  if (x == 0) {
+    return("0")
+  }
+  else if (abs(x) > 0.001) {
+    out <- str_extract(x,"^.+\\..{0,3}")
+  } 
+  else {
+    out <- scales::scientific(x,2) %>% 
+      str_replace("e"," \\\\cdot 10^{")
+    
+    out <- paste0("$",out,"}$")
+  }
+  
+  return(out)
+})
+
+fix_wrap_kable <- function(kbl, threeparttable = F) {
+
+  kbl <- kbl %>% 
+    str_remove(paste0("\\\\caption[{].+[}]\\n")) %>% 
+    str_replace("\\\\end[{]tabular[}]",
+                paste0("\\\\end{tabular}\n\\\\caption{",attributes(kbl)$kable_meta$caption %>%
+                         str_replace("(?<=[(]\\\\#.{0,100})[)]","}") %>% 
+                         str_replace("\\label[{]|[(]\\\\#","\\\\\\\\label{"),"}\n")) %>% 
+    set_attributes(attributes(kbl)) 
+  
+  if (threeparttable) {
+    kbl <- kbl %>% 
+      str_replace("(?=\n\\\\begin\\{tabular\\})","\n\\\\begin{threeparttable}") %>% 
+      str_replace("(?=\\n\\\\end\\{table\\})","\n\\\\end{threeparttable}") %>% 
+      set_attributes(attributes(kbl)) 
+  }
+  
+  attributes(kbl)$kable_meta$caption <- NA
+  
+  return(kbl)
+}
+
+extend_cell_height <- function(kbl,h = 1) {
+  kbl %>%
+    row_spec(1:str_count(kbl,"\\\\hspace"), extra_latex_after = paste0("[",h,"ex]")) %>% 
+    str_replace_all("(?=\\\\hspace)",paste0("\\\\rule{0pt}{",h+2,"ex}")) %>% 
+    set_attributes(attributes(kbl))
+}
+
+remove_whitespace_wrap_kable <- function(kbl,bottom="-1cm",top="0cm") {
+  kbl %>%
+    str_replace("(?=\\n\\\\end\\{.{0,4}table\\})",
+                paste0("\n\\\\vspace{",bottom,"}")) %>%
+    str_replace("(?<=\\\\begin\\{\\.{0,4}table\\}.{0,100}\\n)(?=\\n\\\\centering)",
+                paste0("\n\\\\vspace{",top,"}")) %>%
+    set_attributes(attributes(kbl))
+}
+```
+
+\newpage
+
+# Introduction
+
+## Functional analysis & Ecosystem functioning
+
+Global crises are threatening critical ecosystem functioning for peoples and species on a global scale @IPBES2019. Understanding the link between community composition and ecosystem services requires mapping functional attribute-space to ecosystem properties and derived downstream services @Lavorel2002. By measuring the composition-function-service link, functional community ecology and biogeography could guide conservation ecology, by determining the possible changes to ecosystem-provided services as a result of biodiversity decline. Specifically, analyses of the patterns in functional traits are increasingly being used to investigate the interactions between ecology and evolution [@Storch2019; @Rabosky2015], community assemblage patterns [@Ricklefs2012; @Mouillot2013; @Swenson2016; @Ordonez2018], and drivers of ecosystem functioning [@McGill2006; @Paine2015]. Furthermore, functional ecology has been used to explain how species are distributed in niche-space, the drivers of these patterns and their connections to ecosystem services, and resilience to global change [@McGill2006; @Villeger2008; @Mouchet2010; @Violle2014; @Storch2019]. Therefore, functional ecology and biogeography has the potential to shape conservation actions by informing policymakers and other stakeholders of the value and vulnerability of species and ecosystems. 
+
+Functional analysis have been be applied at different ecosystem scales; from the local-community to biogeographical scale. At community scale, functional analysis are primarily used in local assessments or experiments, focused on explaining species coexistence patterns [@Weiher1998; @McGill2006], ecosystem services [@Scherer2008; @Zavaleta2010] and invasiveness @Hejda2013. Importantly, due to the local perspective and scale community centered studies can relatively easily obtain and integrate (relative) abundances [@Weiher1998; @Scherer2008; @Zavaleta2010; @Catford2019]. Additionally, these local efforts are often coupled with both site- and individual-based measurements of functional traits @Weiher1998, which has been argued as being an important feature in functional analysis @Yang2018.
+
+The biogeographical perspective focuses on understanding the ecosystem-level effects of compositional changes due to past @Svenning2015 and ongoing @Culshaw2021 environmental changes, predicting vegetation types @Swenson2010, ecosystem services [@Violle2014; @Paine2015; @Yang2018] and investigating the relationship between niche-space and biodiversity patterns [@Ricklefs2012; @Rabosky2015; @Swenson2016; @Ordonez2018; @Storch2019]. In these approaches range maps or regional floras are often used to define the presence of species [@Ricklefs2012; @Ordonez2018], given the limited number of datasets that summarize relative abundances for complete assemblages in a standardized way (see [@Swenson2010; @Swenson2012] for exceptions). Furthermore, biogeographical literature has, for the most part, intentionally limited the used trait databases to ecological attributes that define different and important functional dimensions [@Swenson2010; @Swenson2012; @Paine2015; @Swenson2016; @Ordonez2018; @Blonder2018].
+
+A key feature determining the difference between the community and biogeographical perspective is the use of abundances vs presence-only or presence/absence to define the topological attributes (i.e., variability and evenness) of the functional space under evaluation. The literature acknowledges that presence data will introduce biases in describing the functional space topological attributes [@Swenson2016], but these biases are poorly understood. However, as the amount of available occurrence data increases thanks to standardized large scale inventory protocols (e.g. Forest Inventory and Analysis @FIADB and breeding bird surveys [@sauer2008north; @Gillings2019]) and broad coverage (functional) trait databases (e.g. PLANTS @PLANTS, TRY @Fraser2020 and EltonTraits @Wilman2014), we can now assess these biases. 
+
+This work investigates how shifting the focus from presences to abundance in functional analyses at biogeographic scales affects topological attributes of the functional space of woody plants in Eastern North America. This work will also determine how the size of the species pool and the evenness in the composition of the evaluated assemblages determine the discrepancies between presences and abundance estimates. The null expectation of this work is that integrating abundances will not result in greater than random increases in the functional space topological attributes that quantify central tendency and/or clustering in functional space. The alternative hypothesis is then, that integrating abundances will result in a greater than random increase in the central tendency and clustering of species in functional space, suggesting that presence data overly emphasizes rare and functionally unique species. The analyses and results presented here are intended to highlight when and how significant the use of abundances is when describing the functional space.
+
+# Methods and Materials
+
+## Data sources
+```{r, echo = F}
+#######
+trait_meta <- readxl::read_excel("../Final Visualizations/trait_types.xlsx",
+                                 col_types = c("text","text","text","logical",
+                                               "skip","skip","skip","skip","skip")) %>% 
+  mutate(type = map_chr(type, ~switch(.x, 
+                                      "F" = "Factor", 
+                                      "B" = "Binary", 
+                                      "C" = "Continous")) %>% 
+           factor(levels = c("Factor","Binary","Continous")),
+         category = map_chr(category, ~switch(.x, 
+                                              "M" = "MORPHOLOGY/PHYSIOLOGY",
+                                              "G" = "GROWTH REQUIREMENTS",
+                                              "R" = "REPRODUCTION",
+                                              "U" = "SUITABILITY/USE")) %>% 
+           factor(levels = c("MORPHOLOGY/PHYSIOLOGY",
+                             "GROWTH REQUIREMENTS",
+                             "REPRODUCTION",
+                             "SUITABILITY/USE"))) %>% 
+  mutate(n = map2_dbl(variable, type, function(x,y) {
+    if (y == "Continous") return(NA)
+    un <- unique(asgerbachelor::PLANTS_traits[[x]])
+    sum(!is.na(un))
+  }))
+#######
+
+nType <- trait_meta %>% 
+  filter(choose) %>% 
+  count(type)
+
+LATIN_dict <- readRDS("../Final Visualizations/LATIN_dict.rds")
+
+fSP <- readRDS("../Final Visualizations/fSP.rds") 
+TRW <- readRDS("../Final Visualizations/TRW.rds")
+
+genera <- hash::values(LATIN_dict,colnames(fSP)) %>% str_extract("[:alpha:]+") %>% table
+allgenera <- LATIN_dict %>% hash::values() %>% unname %>% str_extract("[:alpha:]+") %>% table()
+
+traitStat <- scan("../Final Visualizations/traitCoverage.txt") 
+```
+
+To obtain an estimate of the relative abundances (quantified by individual counts) of woody plant species in the study region, I utilize the Forest Inventory and Analysis @FIADB dataset, which includes over 22 million individual trees covering 418 species and varieties of woody plants across the contiguous Unites States from the period 1968-2021. The geographical size of this dataset allows for large-scale analysis (approximately 7.8 million square kilometers), while the large number of study units and individuals permits medium scale assemblage aggregation to a $50 \times 50$ km grid using the NAD27 US National Atlas Equal Area coordinate projection. In order to aggregate the individual counts from different study units from different time periods, I have chosen to quantify the abundances as the number of individuals per plot per year using a two-step procedure; (1) individuals for each species in each grid cell for each year are tallied, (2) then I calculate the weighted mean of the tallies, by the number of study units in each grid cell for each year. 
+
+The abundance data is paired with the PLANTS trait-database @PLANTS, which includes over 80 traits, of which I have deemed a subset (n = `r sum(trait_meta$choose)`) to be both non-redundant and functionally relevant (more details in \aref{appendixTrait}). The utilized subset of traits are composed of `r nType$n[nType$type=="Continous"]` continuous and `r sum(nType$n[nType$type!="Continous"])` ordinal/binary traits. These high quality data sources allows for a detailed analysis across a broad ecological range.
+
+However, in the pool of species which are present in the FIA\footnote{In the contiguous US, not in e.g. Alaska.} data set only `r traitStat[3] - traitStat[2]` of `r traitStat[3]` have complete trait coverage in the PLANTS database. The remaining `r traitStat[2]` species are missing trait information for an average of ~`r round(traitStat[1])` traits per species. The missing values are imputed following a simple scheme; specifically missing values are imputed as the mean genus values of all woody plants species in the PLANTS dataset. Following this operation the average number of missing traits, for species with missing traits, is lowered to approximately `r readLines("../Final Visualizations/afterGenusMean.txt") %>% as.numeric %>% round(2)` traits per species. Traits which still have more than a few missing values\footnote{1 out of every 50 species missing. This is the only parameter that was chosen manually in the procedure, and the specific value was chosen to balance the number of species and traits removed.} are then removed, followed by finally removing remaining species with missing values. This approach was chosen based on an assumption of phylogenetic conservatism and its simplicity, combined with the relatively low amount of values that needed to be imputed, due to the high initial trait coverage. Following the procedure the utilized data consisted of a total of `r sum(TRW)` effective traits for `r sum(genera)` species across `r length(genera)` genera. See \aref{appendixTrait} for further details on the traits used.
+
+
+## Functional indices
+
+I have chosen to focus on the functional indices described in Villéger et al. 2008 @Villeger2008 and Laliberté & Legendre 2010 @Laliberte2010 (functional dispersion, divergence, evenness and richness). I have chosen to mirror some of their methodological choices (using Gower dissimilarity as well as principal coordinate analysis for dimensionality reduction). A noteable methodological difference is that I use of Gower dissimilarity as the distance/dissimilarity measure for all indices, not only those that require dimensionality reduction, never Euclidean distance. This resolves a minor issue, which Laliberté & Legendre themselves note:
+
+\bquote
+
+*"FDis also satisfies all criteria but the first one (i.e., to be constrained between 0 and 1 for convenience) of Masonet al. (2003) if traits are standardized prior to its computation..."* @Laliberte2010
+
+\equote
+
+Since Gower dissimilarity is itself constrained between 0 and 1 (unlike most other distance/dissimilarity measures, which are mostly constrained between 0 and +$\infty$), all four functional indices which I use in this project, are also restricted between 0 and 1 (see \aref{appendixGower} for further explanation). I interpret the functional indices as follows:
+
+- **Functional dispersion (FDis)**: This metric is the is the average dissimilarity ("distance") to the "average" (community weighted mean) species (i.e. centroid) in functional space. Thus a lower functional dispersion corresponds to a stronger central tendency. Functional dispersion can then be understood as the degree to which species/individuals occupy a common niche within a community @Laliberte2010. 
+
+- **Functional evenness (FEve)**: This metric is the abundance-weighted evenness of the branch length of the minimum spanning tree (MST) of species in functional space. A high functional evenness is then achieved when the functional space is partitioned evenly\footnote{Along the minimum spanning tree.}, that is when species/individuals are uniformly spread *not* clustered in functional space @Villeger2008. 
+
+- **Functional divergence (FDiv)**: This metric is a measure of the right-skewness of the dissimilarity from the un-weighted convex hull centroid distribution, and is strongly related to Rao's Quadratic Entropy (**Q**), however unlike **Q** functional divergence is not associated with functional richness @Mouchet2010. A community with a high functional divergence then contains relatively many species/individuals which exhibit "extreme" functional traits @Villeger2008.
+
+- **Functional Richness (FRic)**: This metric is the convex hull hypervolume of the set of species in a community. Functional richness then measures the size of the utilized niche-space in a community @Villeger2008.
+
+## Statistical modelling {#modelling}
+
+\begin{figure}
+  \vspace{-0.6cm}
+  \includegraphics[width=\linewidth]{../Final Visualizations/exampleNoChangeFDis.png}
+  \caption{Functional dispersion does not necessarily change based on weights. It is not obvious for which, if any, of the functional indices, a Shannon evenness of less than one, is a sufficient condition for a change in the value of the index. For this purpose I have constructed a set of species, which are distributed in a manner in which all distances to the centroid are equal, and a set of uneven weights, which do not result in a shift in the centroid location.}
+  \label{fig:counterExample}
+  \vspace{.35cm}
+\end{figure}
+
+To capture the environmental gradients in the analyses, I disaggregate the results across different "ecosystems" based on the EPA ecoregion framework @EPAecoregions. I found that the EPA ecoregions delineate distinct woody plant assemblages or ecosystems at the scale of my analysis ($50\times50$ km grid), based on a support vector machines (SVM) classification on the relative abundance vectors. Before classification the abundance vectors are ordinated using principal coordinate analysis\footnote{The dissimilarity metric is Bray-Curtis, i.e. manhattan distance divided by two.}, and the number of axes are determined based on a broken stick approach (n = 18). The repeated (n=5) k-fold (k=5) cross-validation accuracy is between [`r range(scan("../Ecosystem discrimination/SVM_accuracy.txt"))`] with a mean of `r round(mean(scan("../Ecosystem discrimination/SVM_accuracy.txt")),3)`\footnote{This approach is chosen over the more classical linear discriminant analysis, since this has a much lower minimum and mean CV accuracy of [`r range(scan("../Ecosystem discrimination/LDA_accuracy.txt"))`] \& `r round(mean(scan("../Ecosystem discrimination/LDA_accuracy.txt")),3)`.}. The confusion matrix for the SVM model can be found in \aref{appendixConfusion}, also visually confirms the validity of the result.
+
+I calculate the functional indices (FDis, FDiv, FEve & FRic) for all communities (grid cells) twice, once with the relative abundances from FIA and once where all abundances that are not zero are standardized to one, i.e. presence data. Conceptually the standardization of abundances is then treated as a "treatment" and each grid cell as a replicate. I define bias in the context of this procedure as the difference between the functional index value given the true abundances and the standardized "presence" abundances for a grid cell; $\mathrm{Bias}: \mathrm{Index_{Abundance}} - \mathrm{Index_{Presence}}$. To determine the drivers of bias in the functional indices I have chosen to use generalized additive mixed models (GAMM), due to their great flexibility in mixing parametric, semi-parametric (here thin plate regression splines @R-mgcv-5) and random effects @R-gamm4. Semi-parametric terms and random effects are used only to account for spatial autocorrelation, imbalanced sampling and pseudo-replication. Species richness is first log-transformed and then both Shannon Evenness and species richness are scaled and modelled as fixed linear effects. These models were formalized as: $y = X\boldsymbol{\beta} + \boldsymbol{\zeta} + \varepsilon$, where $X\boldsymbol{\beta}$ are the fixed parametric effects and $\boldsymbol{\zeta}$ are the semi-parametric and random effects. $\boldsymbol{\zeta}$ is composed of two terms; $\mathbf{\zeta} = \hat{f}(x,y,\log(\mathrm{N_{samples}}))+Z\mathbf{u}$, where $\hat f$ is a smoothing term (thin plate splines) of the geographic coordinates ($x,y$) and the logarithm of the number of FIA plots in a grid cell ($\log(\mathrm{N_{Samples}})$), while $Z\mathbf{u}$ is a random effect term of grid cell ID nested in Ecoregion. The smoothing term is included to account for spatial as well as sampling patterns in both the value and bias of the index. The initial model formulation was then:
+$$\mathrm{Index} \sim \mathrm{Type} + s(x,y,\mathrm{N_{samples}}) + (1\,|\,\mathrm{Ecoregion/Type})$$
+
+\begin{wrapfigure}[]{l}{0.5\textwidth}
+  \vspace{-0.5cm}
+  \centering
+  \includegraphics[width=\linewidth]{../Final Visualizations/exampleRandomWeights.png}
+  \caption{A baseline for the bias-relationships of functional dispersion. The color is based on an aggregated mean bias, based on 100 000 virtual communities, with log-normal abundance distributions, across 50 evenly spaced values of species richness in $[10,100]$. The log-standard deviation is kept constant at $\sigma_{\log}=2$ \& traits are normally distributed.}
+  \label{fig:simFDis}
+\end{wrapfigure}
+This model framework not only detects, but also decompose the functional index biases into three parts (baseline, species richness, Shannon Evenness). Bias decomposition using this model is done by adding the new components as fixed effects with an interaction with 'Type' (the binary parameter indicating the abundance standardization "treatment"). This addition also allows for interpretation of the unbiased effects of species richness and Shannon Evenness on the functional index at hand. The best fitted models were selected based on the minimum AIC from the set of models that can be constructed by removing fixed effects (see \autoref{ResultsBias}), semi-parametric and random effects were kept the same for all models. 
+
+When considering the bias introduced by using presence data instead of abundance data, it is important to consider the conditions under which a bias might arise. For all the functional indices which I analyse in this report, the abundances are used to compute a species-weight vector for each community @Villeger2008. As such it must be a necessary, but not obviously sufficient, condition, that the abundance composition of communities must be uneven (see \autoref{fig:counterExample}). By considering the following expressions for Shannon diversity given presence ($\mathrm{D_{Shannon}}(w^\star)$:
+\begin{align*}
+\mathrm{D_{Shannon}}(w^\star) &= -\mathlarger\sum_{i = 1}^N \frac{w^\star_i}{\Sigma w^\star} \cdot \log\left(\frac{w^\star_i}{\Sigma w^\star}\right), \quad w^\star_i = 
+  \begin{dcases}
+    1,\quad  w_i > 0 \\ 
+    0, \quad w_i = 0 
+  \end{dcases} \\
+&= -\Sigma w^\star \cdot \frac{1}{\Sigma w^\star} \cdot \log\left(\frac{1}{\Sigma w^\star}\right) = \log(\Sigma w^\star)
+\end{align*}
+then recognizing $\Sigma w^\star$ as the number of species present $N^*$:
+$$\mathrm{D_{Shannon}}(w^\star)=\log(N^\star)$$
+It becomes clear that Shannon evenness which is defined as @Magurran2010 $\mathrm{E_{Shannon}} = \frac{\mathrm{D_{Shannon}}(w)}{\log(N)}$, can be reformulated as the ratio between Shannon diversity of a community given abundance data and the same community given presence data:
+$$\mathrm{E_{Shannon}}=\frac{\mathrm{D_{Shannon}}(w)}{\mathrm{D_{Shannon}}(w^*)}$$
+Thus functional indices for abundance and presence data must converge, when Shannon evenness is equal to 1. For this reason I propose that Shannon evenness can be used as an indicator of possible biases in functional analyses. Simulations also provide a strong expectation that it is indeed Shannon evenness, not species richness, which primarily drives the bias, at least for functional dispersion, see \autoref{fig:simFDis}. However for the data distribution of the real woody plant communities in my investigation, we do not have such broad coverage of Shannon evenness for the entire range of species richness, especially within specific sampling regimes.
+
+## Software 
+
+All analyses and illustrations were carried out in R (`r version$version.string`) @R-base. Calculation of the functional indices were done using a package I created for the specific purposes and needs of this work, and is accessible on [github (https://github.com/asgersvenning/bachelor)](https://github.com/asgersvenning/bachelor). The package provides separate functions for calculating the individual indices, as well as support for both euclidean distance and (weighted) Gower dissimilarity, as well as ordination. The package also includes all the data necessary to reproduce my results. It is inspired by the FD @R-FD-2 package, but has some key changes/improvements that allow more flexibility over FD, as well as being faster in some cases. In the backend the package relies heavily on the use of the tidyverse @R-tidyverse (for data manipulation) and the geometry @R-geometry package (for computing convex hulls and hypervolumes). 
+
+All modelling was done using the GAMM4 @R-gamm4 package, which is an extension to the mgcv [@R-mgcv-1; @R-mgcv-2; @R-mgcv-3; @R-mgcv-4; @R-mgcv-5] package providing more efficient generalized additive mixed models for large numbers of random effects, while classification using Support Vector Machines was done using the kernlab [@R-kernlab-1; @R-kernlab-2] package. Visualizations were done using a multitude of packages including but not limited to ggplot2 @R-ggplot2, patchwork @R-patchwork and sf @R-sf, while geospatial operations were done using terra @R-terra, sf @R-sf and stars @R-stars. I also thank the creators of the packages hash @R-hash and magrittr @R-magrittr for providing cleaner and faster workflows. Scripts for visualizations and analyses will be available on the package github.
+
+\newpage
+
+# Results
+
+## Spatio-topological patterns of functional space {#mapSection}
+
+The most obvious spatio-topological pattern in the functional space is a clear distinction between the eastern and western United States as can be seen in \autoref{fig:indicesByEcoregion} & \autoref{fig:interpolatedMaps}. The east-west divide is also visible in the distribution of topological patterns across ecoregions, however, several ecoregions diverge from this pattern, notably the Everglades in Florida. It is also striking that FDis and FEve are consistently larger using presence data, while FDiv is basically unchanged across different ecosystems. All three indices (FDis, FDiv, FEve) also show smaller variance under presence than abundance. 
+
+<!-- \setlength{\intextsep}{\oldintextsep} -->
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{../Final Visualizations/index_by_ecoregion.png}
+  \caption{Functional indices disaggregated by ecoregion arranged: West (top) to East (bottom). The dashed red line indicates the overall mean for each index, while the horizontal black error bars indicate 95\% confidence intervals. Coordinates on the right vertical axis annotate the approximate centroid longitude of each Ecoregion.}
+  \label{fig:indicesByEcoregion}
+  \vspace{-3cm}     
+\end{figure}
+
+\newpage
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{../Final Visualizations/interpolatedMap.png}
+  \caption{Interpolated spatial patterns in the topological indices of the functional ecological space. The values for the functional indices (FDis: \textbf{(a.*)}, FDiv = \textbf{(b.*)}, FEve = \textbf{(c.*)}, FRic = \textbf{(d.*)}) are calculated using the relative weighted mean abundances of species (panel \textbf{(*.1)}) and presence values (panel \textbf{(*.2)}). Grid cells with too species (n$<7$) are interpolated using local distance-weighted geographic regression. The raw maps can be found in \aref{appendixMaps}.}
+  \label{fig:interpolatedMaps}
+\end{figure}
+
+\FloatBarrier
+
+\newpage
+
+## Biases in functional analysis using presence {#ResultsBias}
+\newlength{\oldintextsep}
+\setlength{\oldintextsep}{\intextsep}
+
+\setlength{\intextsep}{0pt}
+```{r simTab, echo = F, results="asis"}
+library(readr)
+library(tidyverse)
+library(kableExtra)
+
+sim_table_dat <- read_csv("functional_indices_normal_lm.csv") %>% 
+  mutate(Effect = ifelse(Effect == "Residuals","Residual",Effect) %>% 
+           factor(levels = c("richness","evenness","Residual"))) %>%
+  arrange(name,Effect,type) %>% 
+  select(1:4,6:7) %>% 
+  filter(Effect == "richness") %>% 
+  select(!Effect)
+
+
+
+sim_table_dat[,-1] %>% 
+  mutate(
+    across(4, labelP),
+    across(2:3, labelN)
+  ) %>% 
+  rename(` ` = 1) %>%
+  kable("latex",escape = F, align = "rccr", booktabs = T,caption="ANOVA type 2 results (simulated data) for the effect of species richness on functional indices with and without Shannon evenness included.") %>%
+  kable_minimal(full_width = F,
+                latex_option = c("hold_position","striped"),
+                position = "float_left") %>% 
+  pack_rows(index = table(sim_table_dat[, 1])) %>% 
+  fix_wrap_kable() %>% 
+  remove_whitespace_wrap_kable("0.7cm") %>% 
+  extend_cell_height(.2)
+```
+
+In the woody plant assemblages I investigated, the variance (and to some degree mean) of Shannon Evenness is strongly correlated with species richness, particularly in the low to medium sampling density regime (0-200 plots). To illustrate the issues that might arise from this structure I ran a simulation across the three topological functional indices which integrate abundances, with species richness in the range 10-100 following a log-normal abundance distributed communities ($\mu_{\log}=-4,\quad\sigma_{\log}=1.25$) with 5 uniformly distributed traits for each virtual species\footnote{The distribution parameters are chosen to mimic the ones in the FIA dataset.}. I then ran a set of type II ANOVA's on linear models of the bias (for each index) using either only species richness, or species richness along with Shannon evenness. This synthetic analysis shows how a correlation structure between species richness and unknown true predictors of bias (Shannon Evenness), can result in potentially misleading findings (\autoref{tab:simTab}).
+```{r realTab, echo = F, eval=T}
+RE_tab <- read_rds("../Final Visualizations/allTab.rds") %>% 
+  group_by(Index) %>% 
+  filter(AIC == min(AIC)) %>% 
+  ungroup %>% 
+  unnest(tab) %>% 
+  select(!c(tabName,AIC)) %>% 
+  relocate(Index) %>% 
+  mutate(across(6, labelP),
+         across(3:5, labelN)
+  ) %>% 
+  group_by(Index) %>% 
+  mutate(term = map_chr(term, ~switch(.x,
+                                      "(Intercept)"="$\\beta$",
+                                      "Richness"="$\\alpha_{\\mathrm{Richness}}$",
+                                      "ShannonEvenness"="$\\alpha_{\\mathrm{Shannon\\,Evenness}}$",
+                                      "Bias"="$\\beta^\\mathrm{Bias}$",
+                                      "Bias:Richness"="$\\alpha^{\\mathrm{Bias}}_{\\mathrm{Richness}}$",
+                                      "Bias:ShannonEvenness"="$\\alpha^{\\mathrm{Bias}}_{\\mathrm{Shannon\\,Evenness}}$")),
+         # term = map_chr(term, ~paste0("\\begin{tabular}[l]",.x,"\\end{tabular}"))
+         ) %>% 
+  rename(` ` = term) %>% 
+  ungroup %>% 
+  arrange(Index)
+
+RE_tab[,-1] %>% 
+  kable("latex",align = "lcccr",escape=F,booktabs=T,caption="Summary statistics for the best models (real data) selected based on minimi-zing AIC. Predictors are scaled (after transformation).") %>%
+  kable_minimal(latex_options = c("striped","hold_position"),
+                full_width = F,
+                position = "center") %>%
+  pack_rows(RE_tab$Index %>% unique,
+            colnum = 1,
+            index = table(RE_tab$Index)) %>%
+  # row_spec(1:12,extra_latex_after = "[.5cm]") %>%
+  fix_wrap_kable(threeparttable = T) %>% 
+  remove_whitespace_wrap_kable(bottom = "1cm", top = ".25cm") %>% 
+  extend_cell_height(.75)
+```
+Using the abundances from FIA and traits from PLANTS, I found a significant positive bias for all three functional indices which can integrate abundance (FDis, FDiv and FEve), using a generalized additive mixed model (GAMM) adjusting for both spatial and sampling patterns, as well as differences between ecosystems. This result falls in line with the visual patterns found in \autoref{mapSection} (see \autoref{fig:indicesByEcoregion}). This bias was decomposed by expanding the fixed effects, $X\boldsymbol{\beta}$, in the GAMM model as follows: 
+\begin{align*}
+  X\boldsymbol{\beta}&=\beta + \alpha_\mathrm{Richness}\cdot\mathrm{Richness} + \alpha_\mathrm{Shannon\,Evenness}\cdot\mathrm{Shannon\,Evenness} + \mathbf{B} \\
+  \mathbf{B}&=T\cdot(\beta^\mathrm{Bias} + \alpha^\mathrm{Bias}_\mathrm{Richness} + \alpha^\mathrm{Bias}_\mathrm{Shannon\,Evenness}\cdot\mathrm{Shannon\,Evenness})
+\end{align*} 
+Where $T$ is short for data standardization \textbf{T}ype and is an indicator variable which is equal to 1, when the data is presence-only. The first three parameters ($\beta,\,\alpha_\mathrm{Richness},\,\alpha_\mathrm{Shannon\,Evenness}$) model the patterns in the values of the index given abundance data, while the latter three parameters in $\mathbf{B}$ model the difference (bias) in the value of the index given presence data. The decomposition of $\mathbf{B}$ can be interpreted as the estimated...:
+\begin{enumerate}
+  \itemsep0em 
+  \item[-] $\beta$: functional index value using abundances given the mean of the transformed predictors.
+  \item[-] $\alpha_\mathrm{Richness}$: scaled log-linear relationship between species richness and the functional index given abundances.
+  \item[-] $\alpha_\mathrm{Shannon\,Evenness}$: scaled linear relationship between Shannon Evenness and the functional index given abundances.
+  \item[-] $\beta^\mathrm{Bias}$: baseline bias component given presence data.
+  \item[-] $\alpha^\mathrm{Bias}_\mathrm{Richness}$: scaled log-linear bias component explained by species richness given presence data.
+  \item[-] $\alpha^\mathrm{Bias}_\mathrm{Shannon\,Evenness}$: scaled linear bias component explained by Shannon Evenness given presence data.
+\end{enumerate}
+As expected for the indices with a significant bias (FDis and FEve), the estimated component for Shannon Evenness, $\alpha^\mathrm{Bias}_\mathrm{Shannon\,Evenness}$, is highly significant and large in magnitude, while the estimated component for species richness, $\alpha^\mathrm{Bias}_\mathrm{Richness}$, is smaller in magnitude and/or insignificant, as can be seen in \autoref{tab:realTab}. For FDiv only the baseline bias component was even slightly significant based on model AIC, however the variance in FDiv was much smaller given presence data (not shown).
+
+\setlength{\intextsep}{\oldintextsep}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{../Final Visualizations/finalModelAIC.png}
+  \caption{Model selection based on minimizing AIC. The intercept only model for FEve \textbf{(c)} is not shown due to extreme AIC (AIC = 335).}
+  \label{fig:modelAIC}
+\end{figure}
+
+
+# Discussion
+
+Here I have shown the functional indices FDis and especially FEve, are biased when presence data is used, and that this bias is strongly related to the evenness of the abundance distribution. This is not entirely surprising and makes sense ecologically, given that communities where the abundance is mainly concentrated on a few species, will likely be less functionally diverse than communities where abundance is spread more evenly among species, which is inherently assumed in presence data. 
+
+Although the effects of integrating abundances seem to suggest that limiting similarity is less important than what is traditionally thought, the species richness relationships that I find support the theory of carrying capacity of species richness @Storch2019. Both functional divergence and evenness show no significant correlation with species richness. Thus, clustering of species in functional space is also not correlated with species richness, suggesting that niche partitioning occurs equally at all levels of species richness supporting the theory of limiting similarity. However the most significant species richness relationship that I find, is a positive correlation with functional dispersion suggesting that niche partitioning begins at the central niche in a community, which I hypothesize is often most productive. If true, this pattern can be explained by species richness-productivity relationships which have been shown associated with niche packing @Pellissier2018. My results thus show that species-rich communities are more functionally diverse, even and show increasing partitioning of the niche space. These patterns are initially strongly correlated with the sampling regime, which is especially evident in the spatial patterns of the functional indices, however the reported relationships are adjusted for spatial, ecosystem and sampling effects. 
+
+I interpret the strong longitudinal divide as a coupled ecological and sampling effect. There are clearly different sampling regimes in the eastern and western parts of FIA effort [@Mcroberts2005; @Wiener2021] (also see \aref{appendixSampling}), however at the same time the western United States is covered by large swathes of deserts, which might be unsuitable for the FIA, and coniferous forests which show different patterns of functional diversity compared to decidous forests @Lubek2020.
+
+A caveat to the rigor of this model, is a large degree of residual heteroscedacity between abundances and presence, with abundances generally displaying much larger variance. I was unfortunately not able to resolve this due to the gamm4 package not supporting general model classes (in this case the "gaulss" family, would be more appropriate) while the alternative solution using random effects in gam (from the package mgcv) is exceedingly slow when the number of random effects is large (in this case n = 2291). The effect of this compromise is likely larger standard errors (higher p-values) on the estimated effects given abundances, and likewise smaller standard errors (lower p-values) for the estimated effects given presence.
+
+# Summary
+
+I find significant biases in certain functional indicies (FDis, FEve) when comparing presence data with abundance data underscoring the need for greater integration of abundances in functional ecology, a trend which I expect will happen naturally, as data availability and statistical/modelling knowledge increases. This work also provides further support for the carrying capacity of species richness @Storch2019 and limiting similarity, by showing that species-rich areas are not more functionally clustered. Future work on robust testing of these patterns using abundance permutation tests on multiple spatial scales and extending the work beyond the US and woody plants is needed however, before we can be fully confident in the patterns I have shown here and their ecological generality.
+
+\newpage
+
+# References
+
+::: {#refs}
+:::
+
+\newpage
+\appendix
+\section*{Appendices}
+\addcontentsline{toc}{section}{Appendices}
+\renewcommand{\thesubsection}{\Alph{subsection}}
+
+## Gower traits & dissimilarity {#appendixGower}
+
+The definition of Gower dissimilarity is\footnote{Exluding ordered factors.} @Gower1971:
+$$\mathrm{gowdis}(\mathbf{Tr}[i,],\mathbf{Tr}[j,])=\delta_{i,j}^\mathrm{T} \cdot \mathbf{w},\quad \delta_{i,j} = \left\lvert\mathbf{Tr}[j,]-\mathbf{Tr}[j,]\right\rvert$$
+Where $\mathbf{Tr}$ is what I choose to call the Gower trait matrix, which can be calculated from the orginal trait matrix using two operations:
+\begin{enumerate}
+  \item Ordinal variables are one-hot encoded i.e. turned into a number of binary dummy columns.
+  \item Continuous variables are scaled by their range (range-scaled):
+$$\mathbf{Tr}^*[,i]=\frac{\mathbf{Tr}[,i]-\min{\left(\mathbf{Tr}[,i]\right)}}{\max{\left(\mathbf{Tr}[,i]\right)}-\min{\left(\mathbf{Tr}[,i]\right)}}$$
+\end{enumerate}
+
+The Gower trait matrix must be accompanied by a weight vector $\mathbf{w}$\footnote{Not strictly necessary if all traits are continous.}. The weights can be chosen a priori, but for factor variables, they must be divided by the number of dummy columns associated with the given
+variable. 
+
+Missingness is handled by excluding the trait from $\delta$ and
+$\mathbf{w}$, followed by re-normalizing $\mathbf{w}$ such that
+$\mathsmaller\sum\mathbf{w}=1$:
+$$\delta\rightarrow\delta_\mathrm{V}, \quad  \mathbf{w} \rightarrow \frac{\mathbf{w}_\mathrm{V}}{\sum\mathbf{w}_\mathrm{V}}, \quad \mathrm{V}\;:\;\left\{i \;\; \mathrm{for} \;\;  \delta\in\mathbb{R}\right\}$$
+An interesting not is that if all traits are weighted equally: $$\mathbf{w}_i=\mathrm{dim}(\mathbf{w})^{-1}$$ then Gower dissimilarity is equal to range scaled Manhattan distance, which when taking into consideration that Bray-Curtis dissimilarity is also equal to Manhattan distance between relative abundances divided by 2, draws a clear connection between Gower and Bray-Curtis dissimilarity.
+
+\newpage
+
+## Trait summary {#appendixTrait}
+
+The PLANTS database contains information on 83 traits, descriptions for which (at the time of writing) can all be found in the [help document](https://plants.usda.gov/assets/docs/PLANTS_Help_Document.pdf). I have aggregated an overview of which traits that I have and have not used, by their data type (continous, binary or factor) and functional category (morphology, growth, reproduction or suitability), derived from the PLANTS help document.
+
+```{r, echo = F}
+trait_meta_tidy <- trait_meta %>% 
+  mutate(used = variable %in% scan("../Final Visualizations/usedTraits.txt", what = "character", sep = ";")) %>% 
+  arrange(category,type,variable) %>% 
+  relocate(category,type,variable,n,choose,used) %>% 
+  group_by(category,type,used) %>% 
+  summarize(variable = paste0(unique(variable) %>% 
+                                str_replace("°","\\\\textdegree "), collapse = "; "),
+            .groups = "drop") %>% 
+  relocate(category,type,variable,used)
+
+tab_type <- trait_meta_tidy %>% 
+  count(category)
+
+trait_meta_tidy[,-1] %>% 
+  kable("latex",align = "rlc", booktabs = T, caption = "Allocation of traits from the USDA PLANTS database",
+        escape = F,
+        col.names = linebreak(c("Type", "Variable","Included"))) %>% 
+  kable_paper(latex_options = "hold_position",
+              full_width=F) %>% 
+  pack_rows(tab_type$category %>% as.character,
+            colnum = 3,
+            index = tab_type$n %>% set_names(tab_type$category),
+            indent = F,
+            bold = T,
+            latex_gap_space = "0pt") %>% 
+  column_spec(c(1,3), width = "2cm") %>% 
+  column_spec(2, width = "11cm") %>% 
+  column_spec(3, 
+              background = ifelse(trait_meta_tidy[[4]], "ForestGreen","FireBrick"),
+              bold = T, color = "white") %>% 
+  row_spec(0, bold = T, font_size = 14) %>% 
+  fix_wrap_kable() 
+```
+
+\newpage
+
+## Confusion matrix {#appendixConfusion}
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics{../Ecosystem discrimination/SVM_confusion_matrix.png}
+  \caption{Confusion matrix of the Support Vector Machine model on ecoregion classification. The visualized accuracies are the proportion of the true class being classified as such, the confusion matrix would thus exhibit obvious visible artefacts if the model was overfitting. On the contrary the fact that almost all observations are found on the diagonal shows the voracity of the model and the confirms the validity of using the EPA ecoregions as delineations between distinct assemblages or ecosystems.}
+\end{figure}
+
+\newpage
+
+## Raw indices maps {#appendixMaps}
+
+For the figures in the report I have interpolated the values of grid cells with missing functional index values using a inverse distance weighted-mean in a circular sliding window. The original maps are provided here:
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=\textwidth]{../Final Visualizations/realMap.png}
+  \caption{Raw spatial patterns in the topological indices of the functional ecological space. The values for the functional indices (FDis = A\*, FDiv = B\*, FEve = C\*, FRic = D\*) are calculated using the relative weighted mean abundances of species (panel \*1) and presence values (panel \*2).}
+  \label{fig:rawMaps}
+\end{figure}
+
+\newpage
+
+## East-West Sampling Imbalance {#appendixSampling}
+
+There is significant sampling imbalance in the FIA dataset, as I have visualized here:
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{../Final Visualizations/eastWestSampling.png}
+  \caption{East-West sampling imbalance. The black point-ranges are 95\%-confidence intervals of intercept only GLM's on the number of FIA plots per $50 \times 50$km study unit in each latitude interval. The salmon histogram is the number of $50 \times 50$km study unit in each equal interval latitude interval.}
+  \label{fig:samplingImbalance}
+\end{figure}
+
+
+

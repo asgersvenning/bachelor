@@ -1,0 +1,65 @@
+### Shared goals
+
+Even though functional ecology is applied in a myriad of different ways across the different subfields (e.g. community ecology & biogeography), many of the goals are shared, in particular ecologists across a spectrum want to better understand the way in which species are distributed in niche-space, the drivers of these patterns and their connections to ecosystem services as well as resilience to global change [@McGill2006; @Villeger2008; @Mouchet2010; @Violle2014; @Storch2019]. It is my goal to contribute to this body of work, by exploring the gap between local scale and experiments in community ecology & regional scale and range based biogeography focusing on macroecological patterns. Similar work has been done to a limited degree before, however this work investigated only functional richness and dispersion (for which Rao's Quadratic Entropy was used) and used a heterogenous dataset for birds @Newbold2012. This work aims to use a single homogenous dataset and will investigate multiple facets of functional topology (functional-richness, evenness, divergence[@Villeger2008] and dispersion @Laliberte2010), as well as investigate a different organismal group; trees. This report serves as a thorough analysis of the topology of a real functional space, through which I will be able to provide guidance on the interpretation of patterns in functional space as it pertains to the shared goals of ecologists using functional analyses which count, among others, explaining species richness patterns, ecosystem services and enhancing conservation in the face of global change.
+
+## The problem with scaling functional ecology
+
+Although most functional indices used in functional analyses are able to integrate relative abundances [@Villeger2008; @Mouchet2010; @Laliberte2010; @Mouillot2013], many large scale studies use presence/absence data, mainly due to data availability [@Ricklefs2012; @Swenson2016; @Ordonez2018]. For some analyses presence/absence and abundance data is equivalent (functional/species richness), however for most indices it has the potential to change the results (functional evenness, divergence/dispersion and redundancy). The latter indices are used to assess the patterns of species packing and overlap in functional space, to test the hypotheses of limiting similarity [@Ricklefs2012; @Swenson2016]. However it is well acknowledged in the literature that presence/absence data will introduce biases [@Swenson2016], but these biases are poorly understood and hard to investigate.
+
+However as the amount of freely available occurrence data is increasing dramatically so is the coverage of fine-resolution abundance data, which in turn enables the expansion of abundance-driven ecological research [@Heberling2021, @Violle2014]. The potential of the ever increasing data availability, not only on the distribution and density of species, but also on the (functional) traits of these, is not well understood. In this project I investigate how the increasing size and decreasing granularity of functional analyses will affect the results of analyses, and the degree to which it might serve to reconcile community ecology and biogeography. Central to this question is a detailed examination of the systematic biases which arise on the grounds of the broad current/historic use of presence/absence data in large scale biogeographic functional analyses.
+
+However the use of presence/absence data is not the only issue that arises in the upscaling of functional analyses. Many usual biogeographical issues are maintained in functional biogeography, among others; the effect of spatial grains, scale and autocorrelation. I will also touch upon these, but to a lesser degree.
+
+
+## Reconciling Biogeography and Community Ecology
+
+There has been an increasing interest in explaining demographic patterns through functional analysis, however these efforts often have limited explanatory power [@Yang2018; @Paine2015]. Paradoxically experimental and local studies often find strong relationships between traits and growth rates @Paine2015, which intuitively implies that functional traits play a central role in community assemblage rules. Most studies however, focus on individual and/or a subset of traits deemed to be "functional", which neglects trait-interactions and possibly important traits @Sobral2021. Instead of focusing on individual trait effects or curating a subset of functional traits, I argue that analyzing the entire trait space using functional indices @Villeger2008, can elucidate and resolve the role of functional traits on demographic patterns and community assemblage rules. A key advantage of using more traits indiscriminately is avoiding implicit biases in the selection of traits, as well as possibly increasing coverage of the true functional variation, while a disadvantage is that current functional analyses implicitly assume that all traits are equally functional, and indiscriminately choosing traits might lead to trait-(multi)collinearities. To demonstrate and illuminate the effect of these choices I will focus on the North American tree flora, due to the interest shown in this area [@Ordonez2018; @Swenson2016] and on data availability.
+
+In this project I attempt to provide nuance to previous research which has found that community weighted mean traits correlate significantly with climatic gradients @Swenson2010 which implies that functional traits do indeed drive community composition, however at the same time there has been no support for limiting similarity or niche partitioning [@Swenson2016; @Ordonez2018]. However these studies used used range maps (i.e. presence/absence data) and/or simple trait indices (community weighted means). The goal of my analysis then is to evaluate the patterns of species packing in functional space, integrating both functional indices that describe the topology of the functional space along with abundances. Thus I will be able to conduct a detailed analysis of the functional composition of communities across a large span of the ecological space of the temperate/subtropical tree flora, enabling testing of a multitude of hypotheses and a view into the possible biases produced by the widespread use of presence/absence data.
+
+I expect that if limiting similarity is a strong driver of species distributions, then integrating abundances will not result in a greater than random increase in central tendency or clustering in functional space. As explained in the previous paragraph, this can be evaluated using the changing patterns of functional space as a function of abundance (Shannon) evenness. 
+
+
+
+
+
+<!-- \begin{figure} -->
+  <!--   \centering -->
+  <!--   \includegraphics[width=0.75\textwidth]{traitPlot.png} -->
+  <!--   \caption{Functional traits in select (See Appendix XX) articles on the biogeography of trees.} -->
+  <!-- \end{figure} -->
+```{r, echo = F, eval = F}
+traitPlot <- read_excel("traits.xlsx") %>% 
+  mutate(Traits = map(Traits, str_split, pattern = "; ") %>% map(unlist)) %>% 
+  unnest_longer(Traits) %>%
+  mutate(traitGroup = str_extract(Traits, "Density|Height|Seed|Leaf") %>% 
+           str_replace("Density","Stem/Wood") %>% 
+           factor(levels = c("Stem/Wood","Seed","Height", "Leaf"))) %>%
+  arrange(traitGroup) %>%  
+  mutate(Traits = factor(Traits, levels = unique(Traits))) %>% 
+  ggplot(aes(fill=Traits,y=traitGroup)) +
+  geom_bar(color = "black", size = 1,
+           key_glyph = draw_key_point) +
+  scale_fill_brewer(palette = "Paired") +
+  scale_x_continuous(breaks = scales::pretty_breaks(10),
+                     expand = expansion(0,0)) +
+  scale_y_discrete(expand = expansion(0, .75)) +
+  ggpubr::theme_pubr() +
+  guides(fill = guide_legend(nrow = 3, override.aes = list(size = 7.5,
+                                                           shape = 21,
+                                                           stroke = 1))) + 
+  theme(text = element_text(family = "CMU Serif"),
+        title = element_text(face = "bold",
+                             size = 14),
+        legend.title = element_text(hjust = .5),
+        panel.grid.major.x = element_line(color = "gray65", 
+                                          linetype = "dashed",
+                                          size = .75),
+        axis.line = element_line(color = "black", 
+                                 size = 1),
+        legend.spacing.y = unit(.25, "lines")) +
+  labs(x = NULL, y = "Trait Category")
+
+ggsave("traitPlot.png", traitPlot,
+       type = "cairo-png", dpi = 400, width = 4, height = 2, scale = 2)
+```

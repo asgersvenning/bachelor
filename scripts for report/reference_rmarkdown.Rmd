@@ -1,0 +1,53 @@
+---
+title: "Drivers and Threats to Vascular Plant Species Richness in Denmark"
+subtitle: "Final Project - Statistical And Geospatial Modelling"
+author: "Asger Svenning"
+date: "`r Sys.Date()`\\smallbreak Student no.: 201907234"
+lang: "en"
+toc-title: "Table of Contents"
+output:
+  bookdown::pdf_document2:
+    latex_engine: pdflatex
+    toc: yes
+    number_sections: true
+fontsize: 10pt
+bibliography: references.bib
+link-citations: yes
+csl: nature.csl
+header-includes:
+- \usepackage[utf8]{inputenc} 
+- \usepackage[T1]{fontenc}
+- \usepackage{float}
+- \usepackage{wrapfig}
+- \usepackage{lipsum}
+- \usepackage{caption}
+- \usepackage[export]{adjustbox}
+
+- \captionsetup[figure]{labelfont={bf},labelformat={default},labelsep=colon,name={Figure},belowskip=-12pt}
+- \captionsetup[table]{labelfont={bf},labelformat={default},labelsep=colon,name={Table},belowskip=-12pt}
+
+- \usepackage{titling}
+
+- \usepackage{fancyhdr}
+- \pagestyle{fancy}
+- \renewcommand{\headrulewidth}{0pt}
+- \fancyhead[L]{Asger Svenning}
+- \fancyhead[R]{\textbf{A}arhus \textbf{U}niversity}
+
+- \usepackage{tcolorbox}
+- \newtcolorbox{abstractbox}{
+  colback=black!5,
+  colframe=black!5,
+  coltext=black,
+  boxsep=5pt,
+  arc=0pt}
+  
+- \thispagestyle{empty}
+- \pretitle{\begin{center}\Huge}
+- \posttitle{\includegraphics[width=15cm]{img/initRichMap.png}\\[\bigskipamount]\end{center}}
+- \preauthor{\begin{center}\LARGE}
+- \postauthor{\end{center}\vspace{-0.25in}}
+- \predate{\begin{center}}
+- \postdate{\end{center}\newpage}
+urlcolor: blue
+---

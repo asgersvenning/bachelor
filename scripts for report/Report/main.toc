@@ -1,0 +1,19 @@
+\contentsline {section}{\numberline {1}Introduction}{3}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Functional analysis \& Ecosystem functioning}{3}{subsection.1.1}%
+\contentsline {section}{\numberline {2}Methods and Materials}{4}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Data sources}{4}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Functional indices}{4}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Statistical modelling}{5}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Software}{7}{subsection.2.4}%
+\contentsline {section}{\numberline {3}Results}{8}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Spatio-topological patterns of functional space}{8}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Biases in functional analysis using presence}{10}{subsection.3.2}%
+\contentsline {section}{\numberline {4}Discussion}{12}{section.4}%
+\contentsline {section}{\numberline {5}Summary}{12}{section.5}%
+\contentsline {section}{\numberline {6}References}{13}{section.6}%
+\contentsline {section}{Appendices}{16}{section*.10}%
+\contentsline {subsection}{\numberline {A}Gower traits \& dissimilarity}{16}{subsection.Alph0.1}%
+\contentsline {subsection}{\numberline {B}Trait summary}{17}{subsection.Alph0.2}%
+\contentsline {subsection}{\numberline {C}Confusion matrix}{18}{subsection.Alph0.3}%
+\contentsline {subsection}{\numberline {D}Raw indices maps}{19}{subsection.Alph0.4}%
+\contentsline {subsection}{\numberline {E}East-West Sampling Imbalance}{20}{subsection.Alph0.5}%
