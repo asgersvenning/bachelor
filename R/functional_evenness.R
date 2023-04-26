@@ -23,6 +23,7 @@
 #' @importFrom spdep knn2nb
 #' @importFrom spdep nb2listw
 #' @importFrom ape mst
+#' @importFrom stats dist
 #' @export
 
 functional_evenness <- function (x, w, a = rep(1, nrow(x)), gower = T) {

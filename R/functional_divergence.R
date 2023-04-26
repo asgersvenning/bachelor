@@ -22,6 +22,9 @@
 #' 
 #' @importFrom magrittr %>% 
 #' @importFrom Rdpack reprompt
+#' @importFrom grDevices chull
+#' @importFrom stats cmdscale
+#' @importFrom stats dist
 #' @export
 
 functional_divergence <- function(x, w, a = rep(1, nrow(x)), ch = T, gower = T, detailed = F) {

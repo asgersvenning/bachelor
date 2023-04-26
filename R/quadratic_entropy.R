@@ -3,6 +3,7 @@
 #' Calculates Rao's quadratic entropy from a species-trait matrix and possibly an species-abundance matrix/vector.
 #' 
 #' @param x numeric matrix. Species-trait matrix.
+#' @param w an optional numeric vector. Trait weights for use in gower dissimilarity computation (if 'gower' = T).
 #' @param a optional numeric vector. Species-abundances.
 #' @param raoScale a logical. Is quadratic entropy divided by maximum value (ade4::divcmax)?
 #' @param approxRao an integer. If NOT 0, number of species pairs to estimate quadratic entropy on.
@@ -25,10 +26,17 @@
 #'  
 #' @importFrom magrittr %>% 
 #' @importFrom Rdpack reprompt
+#' @importFrom stats dist
+#' @importFrom stats as.dist
+#' @importFrom magrittr raise_to_power
 #' @export
 #' 
 #' @examples 
-#' # An example using the data also supplied in the package. Note that the first part of the example, just shows how to create species-abundance and species-trait tables from the data, as well as subsetting species in the intersection of both data sources.
+#' \dontrun{
+#' # An example using the data also supplied in the package. 
+#' # Note that the first part of the example, 
+#' # just shows how to create species-abundance and species-trait tables from the data, 
+#' # as well as subsetting species in the intersection of both data sources.
 #' library(hash)
 #' FIA_dict <- hash(PLANTS_meta$plants_code, PLANTS_meta$fia_code)
 #' PLANTS_dict <- invert(FIA_dict)
@@ -65,12 +73,18 @@
 #' ordTraits <- PCoA_traits$vectors[,1:nPC]
 #' 
 #' par(mfrow = c(2,3))
-#' quadratic_entropy(ordTraits,,tSP[,-1], F, gower = F) %>% hist(25,main = "Absolute Euclidean",xlim=c(0,0.05))
-#' quadratic_entropy(ordTraits,,tSP[,-1], F, 10, gower = F) %>% hist(25,main = "Approximate Euclidean",xlim=c(0,0.05))
-#' quadratic_entropy(ordTraits,,tSP[,-1], T, gower = F) %>% hist(25,main = "Relative Euclidean",xlim=0:1)
-#' quadratic_entropy(PLANTS_tG$traits[,-1],PLANTS_tG$weights,tSP[,-1], F, gower = T) %>% hist(25,main = "Absolute Gower",xlim=c(0,0.05))
-#' quadratic_entropy(PLANTS_tG$traits[,-1],PLANTS_tG$weights,tSP[,-1], F,10, gower = T) %>% hist(25,main = "Approximate Gower",xlim=c(0,0.05))
-#' quadratic_entropy(PLANTS_tG$traits[,-1],PLANTS_tG$weights,tSP[,-1], T, gower = T) %>% hist(25,main = "Relative Gower",xlim=0:1)
+#' quadratic_entropy(ordTraits,,tSP[,-1], F, gower = F) %>% 
+#'   hist(25,main = "Absolute Euclidean",xlim=c(0,0.05))
+#' quadratic_entropy(ordTraits,,tSP[,-1], F, 10, gower = F) %>% 
+#'   hist(25,main = "Approximate Euclidean",xlim=c(0,0.05))
+#' quadratic_entropy(ordTraits,,tSP[,-1], T, gower = F) %>% 
+#'   hist(25,main = "Relative Euclidean",xlim=0:1)
+#' quadratic_entropy(PLANTS_tG$traits[,-1],PLANTS_tG$weights,tSP[,-1], F, gower = T) %>% 
+#'   hist(25,main = "Absolute Gower",xlim=c(0,0.05))
+#' quadratic_entropy(PLANTS_tG$traits[,-1],PLANTS_tG$weights,tSP[,-1], F,10, gower = T) %>% 
+#'   hist(25,main = "Approximate Gower",xlim=c(0,0.05))
+#' quadratic_entropy(PLANTS_tG$traits[,-1],PLANTS_tG$weights,tSP[,-1], T, gower = T) %>% 
+#'   hist(25,main = "Relative Gower",xlim=0:1)
 #' 
 #' 
 #' # Computation time comparison between algorithms.
@@ -93,11 +107,12 @@
 #'   ggplot(aes(communities,time,color=implementation)) +
 #'   geom_path() +
 #'   geom_path()
+#' }
 
 quadratic_entropy <- function(x, w = rep(1,ncol(x)), a = rep(1, nrow(x)), raoScale=T, approxRao=0, gower=T) {
   # Adjusted ade4::divcmax to forego the check for euclidean nature, 
   # as well as simply returning the abundance vector which maximizes the entropy.
-  divcmax_spec <- function (dis, w=1, epsilon = 1e-08, comment = FALSE, gower=F) {
+  divcmax_spec <- function (dis, w=w, epsilon = 1e-08, comment = FALSE, gower=F) {
     if (!inherits(dis, "dist")) 
       stop("Distance matrix expected")
     if (epsilon <= 0) 

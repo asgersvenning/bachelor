@@ -5,7 +5,7 @@
 #' 
 #' @param x numeric vector. A vector of observations to calculate the ECDF on.
 #' @param w a numeric vector, matrix or data frame. A vector, matrix or data frame of weights to calculate the ECDF on. If a matrix or data frame, rows are considered vectors of weights.
-#' @param scale a logical. If true 'dis' is range-scaled, such that 'dis' is in [0,1].
+#' @param scale a logical. If true 'dis' is range-scaled, such that 'dis' is in \[0,1\].
 #' @return a table containing the weighted ECDF of 'dis' weighted by 'SP' evaluated at each value of 'x'.
 #' 
 #' @section Details:
@@ -27,11 +27,13 @@
 #' @importFrom dplyr select
 #' @importFrom dplyr group_by 
 #' @importFrom dplyr ungroup
+#' @importFrom dplyr everything
 #' @importFrom tidyr pivot_longer
 #' @importFrom Rdpack reprompt
 #' @export
 #' 
 #' @examples
+#' \dontrun{
 #' Unif <- runif(100)
 #' Norm <- rnorm(100)
 #' tw <- matrix(rpois(100*50,sample(5,100,T)^2),ncol=100,byrow=T)
@@ -48,8 +50,10 @@
 #'                    fun.data = mean_sdl,bins = 50) +
 #'   coord_cartesian(xlim = 0:1, ylim = 0:1, clip = "off", expand = F)
 #'   
-#' # This example shows the complexity of computation as a function of the length of x and the rows of w.
-#' # This can be understood as how fast the computation is carried out given a number of species and a number of sites.
+#' # This example shows the complexity of computation
+#' # as a function of the length of x and the rows of w.
+#' # This can be understood as how fast the computation is carried out
+#' # given a number of species and a number of sites.
 #' res <- lapply((2:15)^3, function(x) {
 #'   sapply((2:15)^3, function(y) {
 #'     Norm <- rnorm(x)
@@ -78,6 +82,7 @@
 #'                      n.breaks = 15) +
 #'   coord_cartesian(expand = F) +
 #'   labs(x = "species", y = "communities")
+#'   }
 
 
 w.ECDF <- function(x,

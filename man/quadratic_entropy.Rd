@@ -16,6 +16,8 @@ quadratic_entropy(
 \arguments{
 \item{x}{numeric matrix. Species-trait matrix.}
 
+\item{w}{an optional numeric vector. Trait weights for use in gower dissimilarity computation (if 'gower' = T).}
+
 \item{a}{optional numeric vector. Species-abundances.}
 
 \item{raoScale}{a logical. Is quadratic entropy divided by maximum value (ade4::divcmax)?}
@@ -44,7 +46,11 @@ It is also considerably faster on large numbers of communities.
 }
 
 \examples{
-# An example using the data also supplied in the package. Note that the first part of the example, just shows how to create species-abundance and species-trait tables from the data, as well as subsetting species in the intersection of both data sources.
+\dontrun{
+# An example using the data also supplied in the package. 
+# Note that the first part of the example, 
+# just shows how to create species-abundance and species-trait tables from the data, 
+# as well as subsetting species in the intersection of both data sources.
 library(hash)
 FIA_dict <- hash(PLANTS_meta$plants_code, PLANTS_meta$fia_code)
 PLANTS_dict <- invert(FIA_dict)
@@ -81,12 +87,18 @@ nPC <- PCoA_traits$values[,3:4] \%>\%
 ordTraits <- PCoA_traits$vectors[,1:nPC]
 
 par(mfrow = c(2,3))
-quadratic_entropy(ordTraits,,tSP[,-1], F, gower = F) \%>\% hist(25,main = "Absolute Euclidean",xlim=c(0,0.05))
-quadratic_entropy(ordTraits,,tSP[,-1], F, 10, gower = F) \%>\% hist(25,main = "Approximate Euclidean",xlim=c(0,0.05))
-quadratic_entropy(ordTraits,,tSP[,-1], T, gower = F) \%>\% hist(25,main = "Relative Euclidean",xlim=0:1)
-quadratic_entropy(PLANTS_tG$traits[,-1],PLANTS_tG$weights,tSP[,-1], F, gower = T) \%>\% hist(25,main = "Absolute Gower",xlim=c(0,0.05))
-quadratic_entropy(PLANTS_tG$traits[,-1],PLANTS_tG$weights,tSP[,-1], F,10, gower = T) \%>\% hist(25,main = "Approximate Gower",xlim=c(0,0.05))
-quadratic_entropy(PLANTS_tG$traits[,-1],PLANTS_tG$weights,tSP[,-1], T, gower = T) \%>\% hist(25,main = "Relative Gower",xlim=0:1)
+quadratic_entropy(ordTraits,,tSP[,-1], F, gower = F) \%>\% 
+  hist(25,main = "Absolute Euclidean",xlim=c(0,0.05))
+quadratic_entropy(ordTraits,,tSP[,-1], F, 10, gower = F) \%>\% 
+  hist(25,main = "Approximate Euclidean",xlim=c(0,0.05))
+quadratic_entropy(ordTraits,,tSP[,-1], T, gower = F) \%>\% 
+  hist(25,main = "Relative Euclidean",xlim=0:1)
+quadratic_entropy(PLANTS_tG$traits[,-1],PLANTS_tG$weights,tSP[,-1], F, gower = T) \%>\% 
+  hist(25,main = "Absolute Gower",xlim=c(0,0.05))
+quadratic_entropy(PLANTS_tG$traits[,-1],PLANTS_tG$weights,tSP[,-1], F,10, gower = T) \%>\% 
+  hist(25,main = "Approximate Gower",xlim=c(0,0.05))
+quadratic_entropy(PLANTS_tG$traits[,-1],PLANTS_tG$weights,tSP[,-1], T, gower = T) \%>\% 
+  hist(25,main = "Relative Gower",xlim=0:1)
 
 
 # Computation time comparison between algorithms.
@@ -109,6 +121,7 @@ compRes \%>\%
   ggplot(aes(communities,time,color=implementation)) +
   geom_path() +
   geom_path()
+}
 }
 \references{
 \insertRef{Villeger2008}{asgerbachelor}

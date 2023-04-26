@@ -20,6 +20,8 @@ functional_dispersion(
 
 \item{a}{optional numeric vector. Species-abundances.}
 
+\item{ch}{a logical. If set to 'TRUE' use convex-hull centroid for the calculation.}
+
 \item{gower}{a logical. Calculate entropy based on Gower dissimilarity as opposed to euclidean distance.}
 
 \item{returnPartial}{an optional logical. If true the distances of each species to each center is returned along with the functional dispersion.}

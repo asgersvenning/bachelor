@@ -5,6 +5,7 @@
 #' @param x numeric matrix. Species-trait matrix.
 #' @param w numeric vector. A vector of length equal to columns in 'x', which specifies the variable weights. If missing, weights are equal.
 #' @param a optional numeric vector. Species-abundances.
+#' @param ch a logical. If set to 'TRUE' use convex-hull centroid for the calculation.
 #' @param gower a logical. Calculate entropy based on Gower dissimilarity as opposed to euclidean distance.
 #' @param returnPartial an optional logical. If true the distances of each species to each center is returned along with the functional dispersion. 
 #' @return a number.
@@ -18,6 +19,9 @@
 #' 
 #' @importFrom magrittr %>% 
 #' @importFrom Rdpack reprompt
+#' @importFrom grDevices chull
+#' @importFrom stats cmdscale
+#' @importFrom stats dist
 #' @export
 
 functional_dispersion <- function (x, w, a = rep(1, nrow(x)), ch = F, gower = T, returnPartial = F) 

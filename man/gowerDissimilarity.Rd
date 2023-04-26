@@ -29,6 +29,7 @@ This step is important to ensure that the calculation can be carried out, even i
 }
 
 \examples{
+\dontrun{
 # Obviously "tidyverse" needs to be loaded for most of these examples to work.
 createSyntheticMat <- function(x,n,na.prob=0.05) {
   vec <- runif(x*n)*sample(c(1,NA),x*n,T,prob=c(1-na.prob,na.prob))
@@ -82,19 +83,32 @@ minePCoA$values[,3:4] \%>\%
 
 minePCoA \%>\% biplot()
 
-distToCOM <- gowerDissimilarity(PLANTS_tG$traits[,-1],PLANTS_tG$weights,PLANTS_tG$traits[,-1] \%>\% colMeans(na.rm=T))
-distToCOH <- gowerDissimilarity(PLANTS_tG$traits[,-1],PLANTS_tG$weights,PLANTS_tG$traits[chull(minePCoA$vectors[,1:2]),-1] \%>\% colMeans(na.rm=T))
+distToCOM <- gowerDissimilarity(PLANTS_tG$traits[,-1],
+                                PLANTS_tG$weights,
+                                PLANTS_tG$traits[,-1] \%>\% 
+                                  colMeans(na.rm=T))
+distToCOH <- gowerDissimilarity(PLANTS_tG$traits[,-1],
+                                PLANTS_tG$weights,
+                                PLANTS_tG$traits[chull(minePCoA$vectors[,1:2]),-1] \%>\% 
+                                  colMeans(na.rm=T))
 
 par(mfrow = c(1,3))
 distToCOM \%>\%
-  hist(seq(0,.5,.01),main="Trait-Vector Gower Dissimilarity\nwith Center of Mass",xlim=c(0,.5),)
+  hist(seq(0,.5,.01),
+       main="Trait-Vector Gower Dissimilarity\nwith Center of Mass",
+       xlim=c(0,.5),)
 
 distToCOH \%>\%
-  hist(seq(0,.5,.01),main="Trait-Vector Gower Dissimilarity\nwith Center of Convex Hull",xlim=c(0,.5),)
+  hist(seq(0,.5,.01),
+       main="Trait-Vector Gower Dissimilarity\nwith Center of Convex Hull",
+       xlim=c(0,.5),)
 
 minePCoA$vectors \%>\%
   raise_to_power(2) \%>\%
   rowSums \%>\%
   sqrt \%>\%
-  hist(seq(0,.5,.01),main = "PCoA-Vector Magnitudes",xlim=c(0,.5))
+  hist(seq(0,.5,.01),
+       main = "PCoA-Vector Magnitudes",
+       xlim=c(0,.5))
+}
 }

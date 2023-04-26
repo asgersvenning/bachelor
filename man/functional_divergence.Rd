@@ -4,7 +4,14 @@
 \alias{functional_divergence}
 \title{Calculates functional divergence}
 \usage{
-functional_divergence(x, w, a = rep(1, nrow(x)), ch = F, gower = T)
+functional_divergence(
+  x,
+  w,
+  a = rep(1, nrow(x)),
+  ch = T,
+  gower = T,
+  detailed = F
+)
 }
 \arguments{
 \item{x}{numeric matrix. Species-trait matrix.}
@@ -16,19 +23,22 @@ functional_divergence(x, w, a = rep(1, nrow(x)), ch = F, gower = T)
 \item{ch}{optional numeric or logical. Should the center of be based on the convex hull of the species, if true the convex hull is estimated on a 2-D PCoA. If a numeric the convex hull is estimateds on a N-D PCoA.}
 
 \item{gower}{a logical. Calculate entropy based on Gower dissimilarity as opposed to euclidean distance.}
+
+\item{detailed}{a logical. If true the partial divergences and convex hull vertices are returned.}
 }
 \value{
-a number.
+a number. Or if 'detailed'=TRUE, a list containing; the community functional divergences, the partial divergences and a boolean indicating whether a species is in the set of convex hull vertices for all present species in each site (missing values are missing species).
 }
 \description{
-Calculates functional divergence from a species-trait matrix and possibly an abundance vector
+Calculates functional divergence from a species-trait matrix and possibly an abundance vector. Weights should only be supplied, when using 'gower'=TRUE.
 }
 \section{Details}{
 
-This functions implements functional divergence as it is defined in \insertCite{Villeger2008}{asgerbachelor},
-based on a weighted Gower dissimilarity measure (which is equivalent to the calculation in FD::gowdis, expect it doesn't handle ordered factors or assymetric binary variables).
+This functions implements functional divergence as it is defined in \insertCite{Villeger2008}{asgerbachelor}.
+It handles both euclidean distance and Gower dissimilarity (however not with ordered factors or asymmetric binary variables).
 
-It also supplies the option of calculating the center of mass based on the convex hull of the first two principal coordinates.
+The argument 'ch' defines a maximum trait dimensionality, which will be lowered on a site by site basis, if the number of species is lower than the number of (ordinated) traits.
+OBS: If 'ch'=FALSE, then no convex hull will be calculated, and instead all site-present species will be used for center of mass calculation.
 }
 
 \references{

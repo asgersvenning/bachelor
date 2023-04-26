@@ -20,10 +20,16 @@
 #'
 #' @importFrom Rdpack reprompt
 #' @importFrom geometry convhulln
+#' @importFrom stats dist
+#' @importFrom stats cmdscale
 #' @export
 #' 
 #' @examples 
-#' # An example using the data also supplied in the package. Note that the first part of the example, just shows how to create species-abundance and species-trait tables from the data, as well as subsetting species in the intersection of both data sources.
+#' \dontrun{
+#' # An example using the data also supplied in the package. 
+#' # Note that the first part of the example, 
+#' # just shows how to create species-abundance and species-trait tables from the data, 
+#' # as well as subsetting species in the intersection of both data sources.
 #' library(hash)
 #' FIA_dict <- hash(PLANTS_meta$plants_code, PLANTS_meta$fia_code)
 #' PLANTS_dict <- invert(FIA_dict)
@@ -57,8 +63,10 @@
 #' ordTraits <- PCoA_traits$vectors[,1:nPC]
 #' 
 #' par(mfrow = c(1,1))
-#' functional_richness(ordTraits,tSP[,-1]) %>% hist(main = "Distribution of functional richnesses\nat a 50x50 km scale in the FIA dataset",
-#'                                                  xlab = "Functional richness")
+#' functional_richness(ordTraits,tSP[,-1]) %>% 
+#'   hist(main = "Distribution of functional richnesses\nat a 50x50 km scale in the FIA dataset",
+#'        xlab = "Functional richness")
+#' }
 
 
 functional_richness <- function (x, w, a = rep(1, nrow(x)), relative = F, ndim = NULL, gower = T) {

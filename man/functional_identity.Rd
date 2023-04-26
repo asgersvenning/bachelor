@@ -26,8 +26,11 @@ In case of some of or all of the traits are factors, the trait levels must be co
 }
 
 \examples{
-
-# An example using the data also supplied in the package. Note that the first part of the example, just shows how to create species-abundance and species-trait tables from the data, as well as subsetting species in the intersection of both data sources.
+\dontrun{
+# An example using the data also supplied in the package. 
+# Note that the first part of the example, 
+# just shows how to create species-abundance and species-trait tables from the data, 
+# as well as subsetting species in the intersection of both data sources.
 library(hash)
 FIA_dict <- hash(PLANTS_meta$plants_code, PLANTS_meta$fia_code)
 PLANTS_dict <- invert(FIA_dict)
@@ -47,6 +50,7 @@ PLANTS_tG <- PLANTS_traits \%>\%
   gower_traits(T)
 
 tFI <- functional_identity(PLANTS_tG$traits[,-1],rep(1,372))
+}
 }
 \references{
 \insertRef{Villeger2008}{asgerbachelor}
